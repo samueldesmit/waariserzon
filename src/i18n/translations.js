@@ -22,6 +22,11 @@ export const translations = {
     errorPrefix: 'Oops!',
     errorHint: 'Make sure location access is enabled in your browser.',
     geoNotSupported: 'Geolocation is not supported by your browser',
+    geoDenied: 'Location access was denied.',
+    geoDeniedHint: 'On iPhone: go to Settings → Safari → Location and set it to "Allow". Then reload the page.',
+    geoTimeout: 'Location request timed out. Please try again.',
+    geoUnavailable: 'Your location could not be determined. Please try again.',
+    tryAgain: 'Try again',
 
     // Footer
     footerData: 'Weather data from',
@@ -110,6 +115,11 @@ export const translations = {
     errorPrefix: 'Oeps!',
     errorHint: 'Zorg dat locatietoegang is ingeschakeld in je browser.',
     geoNotSupported: 'Geolocatie wordt niet ondersteund door je browser',
+    geoDenied: 'Locatietoegang is geweigerd.',
+    geoDeniedHint: 'Op iPhone: ga naar Instellingen → Safari → Locatie en zet het op "Sta toe". Herlaad daarna de pagina.',
+    geoTimeout: 'Locatieverzoek verlopen. Probeer het opnieuw.',
+    geoUnavailable: 'Je locatie kon niet worden bepaald. Probeer het opnieuw.',
+    tryAgain: 'Probeer opnieuw',
 
     // Footer
     footerData: 'Weerdata van',

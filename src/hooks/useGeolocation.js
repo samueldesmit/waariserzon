@@ -47,7 +47,13 @@ export function useGeolocation() {
         setLoading(false);
       },
       (err) => {
-        setError(err.message);
+        if (err.code === 1) {
+          setError('PERMISSION_DENIED');
+        } else if (err.code === 3) {
+          setError('TIMEOUT');
+        } else {
+          setError('UNAVAILABLE');
+        }
         setLoading(false);
       },
       { enableHighAccuracy: false, timeout: 10000 }

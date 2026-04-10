@@ -170,10 +170,24 @@ function App() {
 
         {active && error && (
           <div className="error" role="alert">
-            <p>{t('errorPrefix')} {error}</p>
-            <p className="error-hint">
-              {t('errorHint')}
-            </p>
+            {error === 'PERMISSION_DENIED' ? (
+              <>
+                <p>{t('geoDenied')}</p>
+                <p className="error-hint">{t('geoDeniedHint')}</p>
+              </>
+            ) : error === 'TIMEOUT' ? (
+              <p>{t('geoTimeout')}</p>
+            ) : error === 'UNAVAILABLE' ? (
+              <p>{t('geoUnavailable')}</p>
+            ) : (
+              <>
+                <p>{t('errorPrefix')} {error}</p>
+                <p className="error-hint">{t('errorHint')}</p>
+              </>
+            )}
+            <button className="locate-btn" onClick={requestLocation} style={{ marginTop: '1rem' }}>
+              <span aria-hidden="true">📍</span> {t('tryAgain')}
+            </button>
           </div>
         )}
 
