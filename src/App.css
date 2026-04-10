@@ -1,3 +1,163 @@
+/* ===== Welcome CTA ===== */
+.welcome-cta {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.welcome-text {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.locate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  color: #FFFFFF;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 140, 0, 0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.locate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.45);
+}
+
+.locate-btn:focus-visible {
+  outline: 3px solid var(--sun-orange);
+  outline-offset: 3px;
+}
+
+.welcome-divider {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 1.25rem 0;
+}
+
+/* ===== Place Search ===== */
+.place-search {
+  position: relative;
+}
+
+.welcome-search {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.header-search {
+  max-width: 360px;
+  margin: 0.75rem auto 0;
+}
+
+.place-search-input-wrap {
+  position: relative;
+}
+
+.place-search-input {
+  width: 100%;
+  padding: 0.7rem 1.2rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 184, 0, 0.25);
+  background: #FFFFFF;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.place-search-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.place-search-input:focus {
+  border-color: var(--sun-yellow);
+  box-shadow: 0 2px 12px rgba(255, 184, 0, 0.2);
+}
+
+.place-search-input:focus-visible {
+  outline: 3px solid var(--sun-orange);
+  outline-offset: 2px;
+}
+
+.place-search-spinner {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 184, 0, 0.3);
+  border-top-color: var(--sun-orange);
+  border-radius: 50%;
+  animation: search-spin 0.6s linear infinite;
+}
+
+@keyframes search-spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+.place-search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 184, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  padding: 0.35rem;
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.place-search-result {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  transition: background 0.1s;
+}
+
+.place-search-result:hover,
+.place-search-result:focus {
+  background: var(--sun-light);
+}
+
+.place-search-result:focus-visible {
+  outline: 2px solid var(--sun-orange);
+  outline-offset: -2px;
+}
+
+.place-search-result-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+}
+
+.place-search-result-detail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 /* ===== Language Switcher ===== */
 .lang-switcher {
   position: absolute;
@@ -631,6 +791,23 @@
   margin-bottom: 0.15rem;
 }
 
+.card-sublabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.stat-sun {
+  background: rgba(255, 184, 0, 0.2);
+  color: var(--sun-orange);
+}
+
+.not-sunny .stat-sun {
+  background: rgba(176, 190, 197, 0.2);
+  color: var(--text-muted);
+}
+
 .card-description {
   color: var(--text-muted);
   font-size: 0.9rem;
@@ -905,5 +1082,40 @@
   .nearest-sunshine {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* ===== Focus Visible ===== */
+.lang-btn:focus-visible,
+.preset:focus-visible,
+.map-back-btn:focus-visible {
+  outline: 3px solid var(--sun-orange);
+  outline-offset: 2px;
+}
+
+.vertical-slider:focus-visible {
+  outline: 3px solid var(--sun-orange);
+  outline-offset: 3px;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .sun-rays {
+    animation: none;
+  }
+
+  .moon-stars {
+    animation: none;
+  }
+
+  .loading-sun,
+  .refreshing-spinner {
+    animation: none;
+  }
+
+  .location-card,
+  .locate-btn,
+  .marker-bubble {
+    transition: none;
   }
 }

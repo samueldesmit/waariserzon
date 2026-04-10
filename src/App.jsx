@@ -20,20 +20,22 @@ function formatTimeLabel(hours, t) {
 function LanguageSwitcher() {
   const { lang, setLang } = useLanguage();
   return (
-    <div className="lang-switcher">
+    <nav className="lang-switcher" aria-label="Language">
       <button
         className={`lang-btn ${lang === 'nl' ? 'active' : ''}`}
         onClick={() => setLang('nl')}
+        aria-label="Nederlands"
       >
         NL
       </button>
       <button
         className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
         onClick={() => setLang('en')}
+        aria-label="English"
       >
         EN
       </button>
-    </div>
+    </nav>
   );
 }
 
@@ -42,40 +44,30 @@ function App() {
   const [radiusKm, setRadiusKm] = useState(60);
   const [hoursAhead, setHoursAhead] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
-  const { location, error: geoError, loading: geoLoading } = useGeolocation();
+  const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
   const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(pinnedLocation ?? location, radiusKm, hoursAhead, lang);
 
-  // Reverse geocode pinned location to get a city name
+  // Keep html lang attribute in sync with selected language
   useEffect(() => {
-    if (!pinnedLocation || pinnedLocation.name) return;
-    let cancelled = false;
-    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pinnedLocation.lat}&lon=${pinnedLocation.lon}&format=json&zoom=10&accept-language=${lang}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        const addr = data.address || {};
-        const name = addr.city || addr.town || addr.village || addr.municipality || addr.county || data.name || null;
-        if (name) {
-          setPinnedLocation((prev) => prev && prev.lat === pinnedLocation.lat && prev.lon === pinnedLocation.lon ? { ...prev, name } : prev);
-        }
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [pinnedLocation, lang]);
+    document.documentElement.lang = lang;
+  }, [lang]);
 
-  const loading = geoLoading || weatherLoading;
+
+  const active = requested || !!pinnedLocation;
+  const loading = active && (geoLoading || weatherLoading);
   const error = geoError || weatherError;
 
   const userPlace = places.find((p) => p.short === 'Here');
   const isNight = userPlace && !userPlace.weather?.isDay;
 
+  const timeLabel = formatTimeLabel(hoursAhead, t);
   const timeControl = (
     <div className="control-card vertical-control">
-      <label className="control-label">
-        {t('when')} <strong>{formatTimeLabel(hoursAhead, t)}</strong>
+      <label htmlFor="time-slider" className="control-label">
+        {t('when')} <strong>{timeLabel}</strong>
       </label>
       <div className="vertical-slider-row">
-        <span className="slider-edge">3d</span>
+        <span className="slider-edge" aria-hidden="true">3d</span>
         <input
           id="time-slider"
           type="range"
@@ -85,15 +77,17 @@ function App() {
           value={hoursAhead}
           onChange={(e) => setHoursAhead(Number(e.target.value))}
           className="app-slider vertical-slider time-slider"
+          aria-valuetext={timeLabel}
         />
-        <span className="slider-edge">{t('now')}</span>
+        <span className="slider-edge" aria-hidden="true">{t('now')}</span>
       </div>
-      <div className="presets vertical-presets">
+      <div className="presets vertical-presets" role="group" aria-label={t('when')}>
         {[0, 3, 6, 12, 24, 48, 72].map((h) => (
           <button
             key={h}
             className={`preset ${h === hoursAhead ? 'active' : ''}`}
             onClick={() => setHoursAhead(h)}
+            aria-pressed={h === hoursAhead}
           >
             {h === 0 ? t('now') : h < 24 ? `+${h}h` : `+${h / 24}d`}
           </button>
@@ -102,13 +96,14 @@ function App() {
     </div>
   );
 
+  const radiusLabel = `${radiusKm} km`;
   const radiusControl = (
     <div className="control-card vertical-control">
-      <label className="control-label">
-        {t('radius')} <strong>{radiusKm} km</strong>
+      <label htmlFor="radius-slider" className="control-label">
+        {t('radius')} <strong>{radiusLabel}</strong>
       </label>
       <div className="vertical-slider-row">
-        <span className="slider-edge">500</span>
+        <span className="slider-edge" aria-hidden="true">500</span>
         <input
           id="radius-slider"
           type="range"
@@ -118,15 +113,17 @@ function App() {
           value={radiusKm}
           onChange={(e) => setRadiusKm(Number(e.target.value))}
           className="app-slider vertical-slider radius-slider"
+          aria-valuetext={radiusLabel}
         />
-        <span className="slider-edge">10</span>
+        <span className="slider-edge" aria-hidden="true">10</span>
       </div>
-      <div className="presets vertical-presets">
+      <div className="presets vertical-presets" role="group" aria-label={t('radius')}>
         {RADIUS_OPTIONS.map((r) => (
           <button
             key={r}
             className={`preset ${r === radiusKm ? 'active' : ''}`}
             onClick={() => setRadiusKm(r)}
+            aria-pressed={r === radiusKm}
           >
             {r}
           </button>
@@ -140,12 +137,12 @@ function App() {
       <header className="app-header">
         <LanguageSwitcher />
         {isNight ? (
-          <div className="moon-logo">
+          <div className="moon-logo" aria-hidden="true">
             <div className="moon-circle" />
             <div className="moon-stars" />
           </div>
         ) : (
-          <div className="sun-logo">
+          <div className="sun-logo" aria-hidden="true">
             <div className="sun-circle" />
             <div className="sun-rays" />
           </div>
@@ -155,15 +152,24 @@ function App() {
       </header>
 
       <main className="app-main">
-        {loading && (
-          <div className="loading">
-            <div className="loading-sun" />
+        {!active && (
+          <div className="welcome-cta">
+            <p className="welcome-text">{t('welcomeMessage')}</p>
+            <button className="locate-btn" onClick={requestLocation}>
+              <span aria-hidden="true">📍</span> {t('findSunshine')}
+            </button>
+          </div>
+        )}
+
+        {active && loading && (
+          <div className="loading" aria-live="polite">
+            <div className="loading-sun" aria-hidden="true" />
             <p>{t('loading')}</p>
           </div>
         )}
 
-        {error && (
-          <div className="error">
+        {active && error && (
+          <div className="error" role="alert">
             <p>{t('errorPrefix')} {error}</p>
             <p className="error-hint">
               {t('errorHint')}
@@ -171,7 +177,7 @@ function App() {
           </div>
         )}
 
-        {!loading && !error && places.length > 0 && (
+        {active && !loading && !error && places.length > 0 && (
           <>
             <SunMap
               places={places}
@@ -183,7 +189,6 @@ function App() {
               onPinLocation={setPinnedLocation}
             />
 
-            {/* Your location card */}
             {userPlace && (
               <div className="user-location-bar">
                 <LocationCard place={userPlace} isUser />
@@ -195,7 +200,7 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          {t('footerData')} <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> — {t('footerScanning', { radius: radiusKm, location: pinnedLocation ? (pinnedLocation.name || t('pinnedLocation')) : t('you') })}
+          {t('footerData')} <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> — {t('footerScanning', { radius: radiusKm, location: pinnedLocation ? (pinnedLocation.name || t('pinnedLocation')) : t('you') })}
         </p>
       </footer>
     </div>

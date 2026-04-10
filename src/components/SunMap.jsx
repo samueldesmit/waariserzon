@@ -42,7 +42,7 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
       {sunnyPlaces.length > 0 && (
         <section className="section sunny-section">
           <h2>
-            <span className="section-icon">☀️</span> {t('sunshineNearby')}
+            <span className="section-icon" aria-hidden="true">☀️</span> {t('sunshineNearby')}
           </h2>
           <p className="section-subtitle">
             {sunnyPlaces.length === 1 ? t('headThisWay') : t('headToOne')}
@@ -58,7 +58,7 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
       {isNighttime && clearNightPlaces.length > 0 && sunnyPlaces.length === 0 && (
         <section className="section night-section">
           <h2>
-            <span className="section-icon">🌙</span> {t('clearSkiesTonight')}
+            <span className="section-icon" aria-hidden="true">🌙</span> {t('clearSkiesTonight')}
           </h2>
           <p className="section-subtitle">
             {t('clearSpotsSubtitle')}

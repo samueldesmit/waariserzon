@@ -188,33 +188,23 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
           setInitialLoading(false);
           setRefreshing(false);
 
-          // Reverse geocode nearby points to get city names
-          const nearby = enriched.filter((p) => p.short !== 'Here');
+          // Reverse geocode all points to get city names (BigDataCloud — no rate limits)
           Promise.allSettled(
-            nearby.map((p, i) =>
-              new Promise((resolve) => setTimeout(resolve, i * 100))
-                .then(() =>
-                  fetch(
-                    `https://nominatim.openstreetmap.org/reverse?lat=${p.lat.toFixed(4)}&lon=${p.lon.toFixed(4)}&format=json&zoom=10&accept-language=${lang}`,
-                    { signal: controller.signal }
-                  )
-                )
+            enriched.map((p) =>
+              fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${p.lat.toFixed(4)}&longitude=${p.lon.toFixed(4)}&localityLanguage=${lang}`,
+                { signal: controller.signal }
+              )
                 .then((r) => r.json())
-                .then((d) => {
-                  const a = d.address || {};
-                  return a.city || a.town || a.village || a.municipality || a.hamlet || a.county || null;
-                })
+                .then((d) => d.locality || d.city || null)
             )
           ).then((results) => {
             if (controller.signal.aborted) return;
             setPlaces((current) =>
-              current.map((place) => {
-                if (place.short === 'Here') return place;
-                const idx = nearby.findIndex((n) => n.short === place.short);
-                if (idx === -1) return place;
-                const r = results[idx];
+              current.map((place, i) => {
+                const r = results[i];
                 const name = r.status === 'fulfilled' && r.value ? r.value : null;
-                return name ? { ...place, label: name } : place;
+                return name ? { ...place, cityName: name } : place;
               })
             );
           });

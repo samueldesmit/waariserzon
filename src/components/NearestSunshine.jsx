@@ -22,8 +22,8 @@ export default function NearestSunshine({ places }) {
     if (sunnySpots.length > 0) {
       const nearest = sunnySpots[0];
       return (
-        <div className="nearest-sunshine has-sun night-banner">
-          <div className="nearest-icon">🌅</div>
+        <div className="nearest-sunshine has-sun night-banner" role="status">
+          <div className="nearest-icon" aria-hidden="true">🌅</div>
           <div className="nearest-content">
             <h2>{t('sunStillUp', { place: nearest.label })}</h2>
             <p>{t('nightButSun', { place: nearest.label, distance: nearest.distance })}</p>
@@ -37,8 +37,8 @@ export default function NearestSunshine({ places }) {
       userPlace?.weather?.condition === 'clear-night' || userPlace?.weather?.condition === 'partly-cloudy-night';
 
     return (
-      <div className="nearest-sunshine night-banner">
-        <div className="nearest-icon">🌙</div>
+      <div className="nearest-sunshine night-banner" role="status">
+        <div className="nearest-icon" aria-hidden="true">🌙</div>
         <div className="nearest-content">
           <h2>{userClearNight ? t('clearNightSkies') : t('nighttime')}</h2>
           <p>{userClearNight ? t('clearNightMsg') : t('overcastNightMsg')}</p>
@@ -49,8 +49,8 @@ export default function NearestSunshine({ places }) {
 
   if (userIsSunny) {
     return (
-      <div className="nearest-sunshine here-sunny">
-        <div className="nearest-icon">☀️</div>
+      <div className="nearest-sunshine here-sunny" role="status">
+        <div className="nearest-icon" aria-hidden="true">☀️</div>
         <div className="nearest-content">
           <h2>{t('youreInSunshine')}</h2>
           <p>{t('enjoyClearSkies')}</p>
@@ -61,8 +61,8 @@ export default function NearestSunshine({ places }) {
 
   if (sunnySpots.length === 0) {
     return (
-      <div className="nearest-sunshine no-sun">
-        <div className="nearest-icon">☁️</div>
+      <div className="nearest-sunshine no-sun" role="status">
+        <div className="nearest-icon" aria-hidden="true">☁️</div>
         <div className="nearest-content">
           <h2>{t('noSunshineNearby')}</h2>
           <p>{t('cloudyAllAround')}</p>
@@ -74,8 +74,8 @@ export default function NearestSunshine({ places }) {
   const nearest = sunnySpots[0];
 
   return (
-    <div className="nearest-sunshine has-sun">
-      <div className="nearest-icon">☀️</div>
+    <div className="nearest-sunshine has-sun" role="status">
+      <div className="nearest-icon" aria-hidden="true">☀️</div>
       <div className="nearest-content">
         <h2>{t('nearestSunshine', { place: nearest.label })}</h2>
         <p>{t('headTo', { place: nearest.label, distance: nearest.distance, description: nearest.weather.description, temp: Math.round(nearest.weather.temperature) })}</p>

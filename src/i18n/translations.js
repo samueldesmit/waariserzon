@@ -6,6 +6,12 @@ export const translations = {
     tagline: 'Find the sunshine near you',
     taglineNight: 'The sun will return — find when & where',
 
+    // Welcome
+    welcomeMessage: 'Discover where the sun is shining around you',
+    findSunshine: 'Find sunshine near me',
+    orSearchPlace: 'or search for a place',
+    searchPlaceholder: 'Search for a city or place...',
+
     // Controls
     when: 'When:',
     now: 'Now',
@@ -25,6 +31,7 @@ export const translations = {
 
     // Location card
     youAreHere: 'You are here',
+    sunChance: '{pct}% sun',
     clouds: '{pct}% clouds',
     wind: '{speed} km/h wind',
 
@@ -39,6 +46,7 @@ export const translations = {
     updating: 'Updating...',
 
     // WeatherMap
+    weatherMap: 'Weather map',
     yourLocation: 'Your Location',
     pinnedLocationLabel: 'Pinned Location',
     loadingLocation: 'Loading...',
@@ -86,6 +94,12 @@ export const translations = {
     tagline: 'Vind de zon bij jou in de buurt',
     taglineNight: 'De zon komt terug — ontdek wanneer & waar',
 
+    // Welcome
+    welcomeMessage: 'Ontdek waar de zon schijnt bij jou in de buurt',
+    findSunshine: 'Vind zonneschijn bij mij',
+    orSearchPlace: 'of zoek een plaats',
+    searchPlaceholder: 'Zoek een stad of plaats...',
+
     // Controls
     when: 'Wanneer:',
     now: 'Nu',
@@ -105,6 +119,7 @@ export const translations = {
 
     // Location card
     youAreHere: 'Je bent hier',
+    sunChance: '{pct}% zon',
     clouds: '{pct}% bewolking',
     wind: '{speed} km/u wind',
 
@@ -119,6 +134,7 @@ export const translations = {
     updating: 'Bijwerken...',
 
     // WeatherMap
+    weatherMap: 'Weerkaart',
     yourLocation: 'Jouw locatie',
     pinnedLocationLabel: 'Vastgezette locatie',
     loadingLocation: 'Laden...',

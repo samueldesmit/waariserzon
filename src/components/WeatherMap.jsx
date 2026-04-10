@@ -69,7 +69,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
       : null;
 
   return (
-    <div className="weather-map-container">
+    <div className="weather-map-container" role="region" aria-label={t('weatherMap')}>
       <div className="map-wrapper">
         {pinnedLocation && onPinLocation && (
           <div className="map-pin-overlay">
