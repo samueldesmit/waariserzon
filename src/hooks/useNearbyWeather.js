@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import { translations, t } from '../i18n/translations';
 
 const DIRECTIONS = [
-  { label: 'North', short: 'N', dLat: 1, dLon: 0 },
-  { label: 'Northeast', short: 'NE', dLat: 0.7, dLon: 0.7 },
-  { label: 'East', short: 'E', dLat: 0, dLon: 1 },
-  { label: 'Southeast', short: 'SE', dLat: -0.7, dLon: 0.7 },
-  { label: 'South', short: 'S', dLat: -1, dLon: 0 },
-  { label: 'Southwest', short: 'SW', dLat: -0.7, dLon: -0.7 },
-  { label: 'West', short: 'W', dLat: 0, dLon: -1 },
-  { label: 'Northwest', short: 'NW', dLat: 0.7, dLon: -0.7 },
+  { key: 'north', short: 'N', dLat: 1, dLon: 0 },
+  { key: 'northeast', short: 'NE', dLat: 0.7, dLon: 0.7 },
+  { key: 'east', short: 'E', dLat: 0, dLon: 1 },
+  { key: 'southeast', short: 'SE', dLat: -0.7, dLon: 0.7 },
+  { key: 'south', short: 'S', dLat: -1, dLon: 0 },
+  { key: 'southwest', short: 'SW', dLat: -0.7, dLon: -0.7 },
+  { key: 'west', short: 'W', dLat: 0, dLon: -1 },
+  { key: 'northwest', short: 'NW', dLat: 0.7, dLon: -0.7 },
 ];
 
 // 1 degree latitude ≈ 111 km
@@ -16,14 +17,13 @@ function kmToDegrees(km) {
   return km / 111;
 }
 
-function generateNearbyPoints(lat, lon, radiusKm) {
-  const points = [{ label: 'You', short: 'Here', lat, lon, distance: 0 }];
+function generateNearbyPoints(lat, lon, radiusKm, strings) {
+  const points = [{ label: strings.youAreHere, short: 'Here', lat, lon, distance: 0 }];
 
-  // 3 rings: 1/3, 2/3, and full radius
   const rings = [
     { factor: 1 / 3, suffix: '' },
     { factor: 2 / 3, suffix: '' },
-    { factor: 1, suffix: ' (far)' },
+    { factor: 1, suffix: ` ${strings.far}` },
   ];
 
   for (let r = 0; r < rings.length; r++) {
@@ -32,7 +32,7 @@ function generateNearbyPoints(lat, lon, radiusKm) {
     const offset = kmToDegrees(offsetKm);
     for (const dir of DIRECTIONS) {
       points.push({
-        label: `${dir.label}${ring.suffix}`,
+        label: `${t(strings, dir.key)}${ring.suffix}`,
         short: `${dir.short}${r > 0 ? r + 1 : ''}`,
         lat: lat + dir.dLat * offset,
         lon: lon + dir.dLon * offset,
@@ -55,25 +55,25 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// WMO weather codes — day/night aware
-function interpretWeatherCode(code, isDay) {
+// WMO weather codes — day/night aware, translated
+function interpretWeatherCode(code, isDay, strings) {
   if (code <= 1) {
-    if (isDay) return { condition: 'sunny', icon: '☀️', description: 'Clear sky' };
-    return { condition: 'clear-night', icon: '🌙', description: 'Clear night' };
+    if (isDay) return { condition: 'sunny', icon: '☀️', description: strings.clearSky };
+    return { condition: 'clear-night', icon: '🌙', description: strings.clearNight };
   }
   if (code === 2) {
-    if (isDay) return { condition: 'partly-cloudy', icon: '⛅', description: 'Partly cloudy' };
-    return { condition: 'partly-cloudy-night', icon: '🌤️', description: 'Partly cloudy night' };
+    if (isDay) return { condition: 'partly-cloudy', icon: '⛅', description: strings.partlyCloudy };
+    return { condition: 'partly-cloudy-night', icon: '🌤️', description: strings.partlyCloudyNight };
   }
-  if (code === 3) return { condition: 'cloudy', icon: '☁️', description: 'Overcast' };
-  if (code <= 49) return { condition: 'foggy', icon: '🌫️', description: 'Fog' };
-  if (code <= 59) return { condition: 'rainy', icon: '🌧️', description: 'Drizzle' };
-  if (code <= 69) return { condition: 'rainy', icon: '🌧️', description: 'Rain' };
-  if (code <= 79) return { condition: 'snowy', icon: '🌨️', description: 'Snow' };
-  if (code <= 84) return { condition: 'rainy', icon: '🌧️', description: 'Rain showers' };
-  if (code <= 86) return { condition: 'snowy', icon: '🌨️', description: 'Snow showers' };
-  if (code <= 99) return { condition: 'stormy', icon: '⛈️', description: 'Thunderstorm' };
-  return { condition: 'unknown', icon: '❓', description: 'Unknown' };
+  if (code === 3) return { condition: 'cloudy', icon: '☁️', description: strings.overcast };
+  if (code <= 49) return { condition: 'foggy', icon: '🌫️', description: strings.fog };
+  if (code <= 59) return { condition: 'rainy', icon: '🌧️', description: strings.drizzle };
+  if (code <= 69) return { condition: 'rainy', icon: '🌧️', description: strings.rain };
+  if (code <= 79) return { condition: 'snowy', icon: '🌨️', description: strings.snow };
+  if (code <= 84) return { condition: 'rainy', icon: '🌧️', description: strings.rainShowers };
+  if (code <= 86) return { condition: 'snowy', icon: '🌨️', description: strings.snowShowers };
+  if (code <= 99) return { condition: 'stormy', icon: '⛈️', description: strings.thunderstorm };
+  return { condition: 'unknown', icon: '❓', description: strings.unknown };
 }
 
 // Find the index in hourly.time that best matches the target date
@@ -95,13 +95,15 @@ function findHourIndex(times, targetDate) {
   return best;
 }
 
-export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0) {
+export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang = 'en') {
   const [places, setPlaces] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const debounceRef = useRef(null);
   const abortRef = useRef(null);
+
+  const strings = translations[lang] || translations.en;
 
   useEffect(() => {
     if (!location) return;
@@ -120,7 +122,7 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0) {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const points = generateNearbyPoints(location.lat, location.lon, radiusKm);
+      const points = generateNearbyPoints(location.lat, location.lon, radiusKm, strings);
       const lats = points.map((p) => p.lat.toFixed(4)).join(',');
       const lons = points.map((p) => p.lon.toFixed(4)).join(',');
 
@@ -167,7 +169,7 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0) {
               isDay = hourly.is_day[idx] === 1;
             }
 
-            const weather = interpretWeatherCode(weatherCode, isDay);
+            const weather = interpretWeatherCode(weatherCode, isDay, strings);
             const distKm = Math.round(haversineKm(userLat, userLon, point.lat, point.lon));
             return {
               ...point,
@@ -193,7 +195,7 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0) {
               new Promise((resolve) => setTimeout(resolve, i * 100))
                 .then(() =>
                   fetch(
-                    `https://nominatim.openstreetmap.org/reverse?lat=${p.lat.toFixed(4)}&lon=${p.lon.toFixed(4)}&format=json&zoom=10`,
+                    `https://nominatim.openstreetmap.org/reverse?lat=${p.lat.toFixed(4)}&lon=${p.lon.toFixed(4)}&format=json&zoom=10&accept-language=${lang}`,
                     { signal: controller.signal }
                   )
                 )
@@ -228,7 +230,7 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [location, radiusKm, hoursAhead]);
+  }, [location, radiusKm, hoursAhead, lang]);
 
   return { places, loading: initialLoading, refreshing, error };
 }

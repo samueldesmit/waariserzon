@@ -1,3 +1,38 @@
+/* ===== Language Switcher ===== */
+.lang-switcher {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.25rem;
+  z-index: 10;
+}
+
+.lang-btn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 184, 0, 0.25);
+  background: #FFFFFF;
+  color: var(--text-dark);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lang-btn:hover {
+  border-color: var(--sun-yellow);
+  background: var(--sun-warm);
+}
+
+.lang-btn.active {
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  color: #FFFFFF;
+  border-color: var(--sun-orange);
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+}
+
 /* ===== Header ===== */
 .app-header {
   text-align: center;

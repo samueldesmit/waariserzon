@@ -1,8 +1,10 @@
 import LocationCard from './LocationCard';
 import WeatherMap from './WeatherMap';
 import NearestSunshine from './NearestSunshine';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function SunMap({ places, refreshing, leftPanel, rightPanel, radiusKm, pinnedLocation, onPinLocation }) {
+  const { t } = useLanguage();
   const nearby = places.filter((p) => p.short !== 'Here');
   const userPlace = places.find((p) => p.short === 'Here');
   const isNighttime = userPlace && !userPlace.weather?.isDay;
@@ -17,7 +19,6 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
 
   return (
     <div className={`sun-map ${isNighttime ? 'nighttime' : ''}`}>
-      {/* Map with controls on left and right — at the very top */}
       <section className="map-with-controls">
         <div className="map-side-panel map-left-panel">
           {leftPanel}
@@ -27,7 +28,7 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
           {refreshing && (
             <div className="map-refreshing-overlay">
               <div className="refreshing-spinner" />
-              <span>Updating...</span>
+              <span>{t('updating')}</span>
             </div>
           )}
         </div>
@@ -36,17 +37,15 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
         </div>
       </section>
 
-      {/* Nearest sunshine banner */}
       <NearestSunshine places={places} />
 
-      {/* Sunny places (daytime) */}
       {sunnyPlaces.length > 0 && (
         <section className="section sunny-section">
           <h2>
-            <span className="section-icon">☀️</span> Sunshine Nearby
+            <span className="section-icon">☀️</span> {t('sunshineNearby')}
           </h2>
           <p className="section-subtitle">
-            Head {sunnyPlaces.length === 1 ? 'this way' : 'to one of these directions'} for sun!
+            {sunnyPlaces.length === 1 ? t('headThisWay') : t('headToOne')}
           </p>
           <div className="card-grid">
             {sunnyPlaces.map((p) => (
@@ -56,14 +55,13 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
         </section>
       )}
 
-      {/* Clear night spots */}
       {isNighttime && clearNightPlaces.length > 0 && sunnyPlaces.length === 0 && (
         <section className="section night-section">
           <h2>
-            <span className="section-icon">🌙</span> Clear Skies Tonight
+            <span className="section-icon">🌙</span> {t('clearSkiesTonight')}
           </h2>
           <p className="section-subtitle">
-            These spots have clear night skies right now.
+            {t('clearSpotsSubtitle')}
           </p>
           <div className="card-grid">
             {clearNightPlaces.map((p) => (
@@ -75,9 +73,7 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
 
       {sunnyPlaces.length === 0 && (!isNighttime || clearNightPlaces.length === 0) && (
         <p className="no-data">
-          {isNighttime
-            ? 'The sun has set. Try looking ahead in time to find tomorrow\'s sunshine!'
-            : 'No sunshine found nearby. Try increasing the radius or looking ahead in time!'}
+          {isNighttime ? t('noSunNight') : t('noSunDay')}
         </p>
       )}
     </div>

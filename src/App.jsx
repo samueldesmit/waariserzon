@@ -3,12 +3,13 @@ import { useGeolocation } from './hooks/useGeolocation';
 import { useNearbyWeather } from './hooks/useNearbyWeather';
 import SunMap from './components/SunMap';
 import LocationCard from './components/LocationCard';
+import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
 const RADIUS_OPTIONS = [30, 60, 100, 200, 300, 500];
 
-function formatTimeLabel(hours) {
-  if (hours === 0) return 'Now';
+function formatTimeLabel(hours, t) {
+  if (hours === 0) return t('now');
   const target = new Date(Date.now() + hours * 3600 * 1000);
   const day = target.toLocaleDateString(undefined, { weekday: 'short' });
   const time = target.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
@@ -16,18 +17,39 @@ function formatTimeLabel(hours) {
   return `${day} ${time}`;
 }
 
+function LanguageSwitcher() {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div className="lang-switcher">
+      <button
+        className={`lang-btn ${lang === 'nl' ? 'active' : ''}`}
+        onClick={() => setLang('nl')}
+      >
+        NL
+      </button>
+      <button
+        className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+        onClick={() => setLang('en')}
+      >
+        EN
+      </button>
+    </div>
+  );
+}
+
 function App() {
+  const { t, lang } = useLanguage();
   const [radiusKm, setRadiusKm] = useState(60);
   const [hoursAhead, setHoursAhead] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const { location, error: geoError, loading: geoLoading } = useGeolocation();
-  const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(pinnedLocation ?? location, radiusKm, hoursAhead);
+  const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(pinnedLocation ?? location, radiusKm, hoursAhead, lang);
 
   // Reverse geocode pinned location to get a city name
   useEffect(() => {
     if (!pinnedLocation || pinnedLocation.name) return;
     let cancelled = false;
-    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pinnedLocation.lat}&lon=${pinnedLocation.lon}&format=json&zoom=10`)
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pinnedLocation.lat}&lon=${pinnedLocation.lon}&format=json&zoom=10&accept-language=${lang}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -39,7 +61,7 @@ function App() {
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [pinnedLocation]);
+  }, [pinnedLocation, lang]);
 
   const loading = geoLoading || weatherLoading;
   const error = geoError || weatherError;
@@ -50,7 +72,7 @@ function App() {
   const timeControl = (
     <div className="control-card vertical-control">
       <label className="control-label">
-        When: <strong>{formatTimeLabel(hoursAhead)}</strong>
+        {t('when')} <strong>{formatTimeLabel(hoursAhead, t)}</strong>
       </label>
       <div className="vertical-slider-row">
         <span className="slider-edge">3d</span>
@@ -64,7 +86,7 @@ function App() {
           onChange={(e) => setHoursAhead(Number(e.target.value))}
           className="app-slider vertical-slider time-slider"
         />
-        <span className="slider-edge">Now</span>
+        <span className="slider-edge">{t('now')}</span>
       </div>
       <div className="presets vertical-presets">
         {[0, 3, 6, 12, 24, 48, 72].map((h) => (
@@ -73,7 +95,7 @@ function App() {
             className={`preset ${h === hoursAhead ? 'active' : ''}`}
             onClick={() => setHoursAhead(h)}
           >
-            {h === 0 ? 'Now' : h < 24 ? `+${h}h` : `+${h / 24}d`}
+            {h === 0 ? t('now') : h < 24 ? `+${h}h` : `+${h / 24}d`}
           </button>
         ))}
       </div>
@@ -83,7 +105,7 @@ function App() {
   const radiusControl = (
     <div className="control-card vertical-control">
       <label className="control-label">
-        Radius: <strong>{radiusKm} km</strong>
+        {t('radius')} <strong>{radiusKm} km</strong>
       </label>
       <div className="vertical-slider-row">
         <span className="slider-edge">500</span>
@@ -116,6 +138,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
+        <LanguageSwitcher />
         {isNight ? (
           <div className="moon-logo">
             <div className="moon-circle" />
@@ -127,23 +150,23 @@ function App() {
             <div className="sun-rays" />
           </div>
         )}
-        <h1>{isNight ? 'Follow the Moon' : 'Follow the Sun'}</h1>
-        <p className="tagline">{isNight ? 'The sun will return — find when & where' : 'Find the sunshine near you'}</p>
+        <h1>{isNight ? t('titleNight') : t('title')}</h1>
+        <p className="tagline">{isNight ? t('taglineNight') : t('tagline')}</p>
       </header>
 
       <main className="app-main">
         {loading && (
           <div className="loading">
             <div className="loading-sun" />
-            <p>Finding the sunshine...</p>
+            <p>{t('loading')}</p>
           </div>
         )}
 
         {error && (
           <div className="error">
-            <p>Oops! {error}</p>
+            <p>{t('errorPrefix')} {error}</p>
             <p className="error-hint">
-              Make sure location access is enabled in your browser.
+              {t('errorHint')}
             </p>
           </div>
         )}
@@ -172,7 +195,7 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          Weather data from <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> — scanning up to ~{radiusKm} km around {pinnedLocation ? (pinnedLocation.name || 'pinned location') : 'you'}
+          {t('footerData')} <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> — {t('footerScanning', { radius: radiusKm, location: pinnedLocation ? (pinnedLocation.name || t('pinnedLocation')) : t('you') })}
         </p>
       </footer>
     </div>

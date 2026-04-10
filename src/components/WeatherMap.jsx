@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function createWeatherIcon(emoji, isSunny, isNight) {
   const cls = isNight ? 'marker-night' : isSunny ? 'marker-sunny' : 'marker-cloudy';
@@ -55,6 +56,7 @@ function MapClickHandler({ onPinLocation }) {
 }
 
 export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPinLocation }) {
+  const { t } = useLanguage();
   const userPlace = places.find((p) => p.short === 'Here');
   const nearby = places.filter((p) => p.short !== 'Here');
   const center = userPlace ? [userPlace.lat, userPlace.lon] : [0, 0];
@@ -71,9 +73,9 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
       <div className="map-wrapper">
         {pinnedLocation && onPinLocation && (
           <div className="map-pin-overlay">
-            <span className="map-pin-name">{pinnedLocation.name || 'Loading...'}</span>
+            <span className="map-pin-name">{pinnedLocation.name || t('loadingLocation')}</span>
             <button className="map-back-btn" onClick={() => onPinLocation(null)}>
-              Back to my location
+              {t('backToMyLocation')}
             </button>
           </div>
         )}
@@ -85,7 +87,6 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
           <FitBounds places={places} />
           {onPinLocation && <MapClickHandler onPinLocation={onPinLocation} />}
 
-          {/* Radius circle */}
           {circleCenter && (
             <Circle
               center={circleCenter}
@@ -100,11 +101,10 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
             />
           )}
 
-          {/* User marker (always shown) */}
           {userPlace && (
             <Marker position={[userPlace.lat, userPlace.lon]} icon={createUserIcon()}>
               <Popup>
-                <strong>{pinnedLocation ? 'Pinned Location' : 'Your Location'}</strong>
+                <strong>{pinnedLocation ? t('pinnedLocationLabel') : t('yourLocation')}</strong>
                 <br />
                 {userPlace.weather?.icon} {userPlace.weather?.description}
                 <br />
@@ -113,18 +113,16 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
             </Marker>
           )}
 
-          {/* Pinned location marker */}
           {pinnedLocation && (
             <Marker position={[pinnedLocation.lat, pinnedLocation.lon]} icon={createPinIcon()}>
               <Popup>
-                <strong>{pinnedLocation.name || 'Pinned Location'}</strong>
+                <strong>{pinnedLocation.name || t('pinnedLocationLabel')}</strong>
                 <br />
                 {pinnedLocation.lat.toFixed(4)}, {pinnedLocation.lon.toFixed(4)}
               </Popup>
             </Marker>
           )}
 
-          {/* Nearby weather markers */}
           {nearby.map((place) => {
             if (!place.weather) return null;
             const isSunny =
@@ -141,7 +139,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
                   <br />
                   {place.weather.icon} {place.weather.description}
                   <br />
-                  {Math.round(place.weather.temperature)}°C — {place.weather.cloudCover}% clouds
+                  {Math.round(place.weather.temperature)}°C — {t('clouds', { pct: place.weather.cloudCover })}
                 </Popup>
               </Marker>
             );
