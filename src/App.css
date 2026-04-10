@@ -1,0 +1,874 @@
+/* ===== Header ===== */
+.app-header {
+  text-align: center;
+  padding: 1.5rem 0 1rem;
+  position: relative;
+}
+
+.sun-logo {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+}
+
+.sun-circle {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, #FFD700 0%, #FFB800 60%, #FF8C00 100%);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 30px rgba(255, 184, 0, 0.6), 0 0 60px rgba(255, 184, 0, 0.3);
+}
+
+.sun-rays {
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: rotate-rays 20s linear infinite;
+}
+
+.sun-rays::before,
+.sun-rays::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--sun-yellow);
+  border-radius: 2px;
+}
+
+.sun-rays::before {
+  width: 80px;
+  height: 4px;
+  box-shadow:
+    0 0 0 0 transparent,
+    0 -38px 0 0 var(--sun-yellow),
+    0 38px 0 0 var(--sun-yellow);
+}
+
+.sun-rays::after {
+  width: 4px;
+  height: 80px;
+  box-shadow:
+    -38px 0 0 0 var(--sun-yellow),
+    38px 0 0 0 var(--sun-yellow);
+}
+
+@keyframes rotate-rays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Moon Logo ===== */
+.moon-logo {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+}
+
+.moon-circle {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 35% 35%, #f0e68c 0%, #daa520 60%, #b8860b 100%);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 25px rgba(218, 165, 32, 0.5), 0 0 50px rgba(218, 165, 32, 0.2);
+}
+
+.moon-circle::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: -3px;
+  width: 38px;
+  height: 38px;
+  background: radial-gradient(circle at 40% 40%, transparent 0%, rgba(184, 134, 11, 0.3) 100%);
+  border-radius: 50%;
+}
+
+.moon-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  animation: twinkle-stars 3s ease-in-out infinite;
+}
+
+.moon-stars::before,
+.moon-stars::after {
+  content: '';
+  position: absolute;
+  background: #f0e68c;
+  border-radius: 50%;
+}
+
+.moon-stars::before {
+  width: 4px;
+  height: 4px;
+  top: 8px;
+  right: 8px;
+  box-shadow:
+    -55px 15px 0 1px #f0e68c,
+    -20px 60px 0 0px #f0e68c,
+    15px 55px 0 1px #f0e68c;
+}
+
+.moon-stars::after {
+  width: 3px;
+  height: 3px;
+  top: 5px;
+  left: 12px;
+  box-shadow:
+    55px 50px 0 0px #f0e68c;
+}
+
+@keyframes twinkle-stars {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--sun-orange), var(--sun-yellow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ===== User Location Bar ===== */
+.user-location-bar {
+  max-width: 280px;
+  margin: 0 auto 1.5rem;
+}
+
+.user-location-bar .location-card.is-user {
+  max-width: none;
+}
+
+/* ===== Map with Controls Layout ===== */
+.map-with-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.map-side-panel {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-side-panel .control-card {
+  flex: 1;
+}
+
+.map-center {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.map-refreshing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(2px);
+  border-radius: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.refreshing-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFD700, #FF8C00);
+  animation: pulse-sun 1s ease-in-out infinite;
+}
+
+.map-refreshing-overlay span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--sun-orange);
+}
+
+/* ===== Control Card ===== */
+.control-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: var(--card-shadow);
+  border: 2px solid rgba(255, 184, 0, 0.15);
+}
+
+.vertical-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.control-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+  text-align: center;
+  width: 100%;
+}
+
+.control-label strong {
+  color: var(--sun-orange);
+  font-size: 1rem;
+  display: block;
+}
+
+/* ===== Vertical Slider ===== */
+.vertical-slider-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  padding: 0.25rem 0;
+}
+
+.slider-edge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.vertical-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 6px;
+  height: 100%;
+  min-height: 180px;
+  flex: 1;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.vertical-slider.radius-slider {
+  background: linear-gradient(180deg, var(--sun-orange) 0%, var(--sun-yellow) 50%, var(--sun-warm) 100%);
+}
+
+.vertical-slider.time-slider {
+  background: linear-gradient(180deg, var(--sun-orange) 0%, var(--sun-yellow) 60%, #87CEEB 100%);
+}
+
+.vertical-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.vertical-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.vertical-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.35);
+  cursor: pointer;
+}
+
+/* ===== Presets ===== */
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.vertical-presets {
+  margin-top: 0.75rem;
+  max-width: 100%;
+}
+
+.preset {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 184, 0, 0.25);
+  background: var(--sun-light);
+  color: var(--text-dark);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset:hover {
+  border-color: var(--sun-yellow);
+  background: var(--sun-warm);
+}
+
+.preset.active {
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  color: #FFFFFF;
+  border-color: var(--sun-orange);
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+}
+
+/* ===== Loading ===== */
+.loading {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.loading p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+
+.loading-sun {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFD700, #FF8C00);
+  animation: pulse-sun 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-sun {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 40px rgba(255, 184, 0, 0.7);
+  }
+}
+
+/* ===== Error ===== */
+.error {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--sun-warm);
+  border-radius: 16px;
+  border: 2px solid var(--sun-yellow);
+}
+
+.error p:first-child {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--sun-orange);
+}
+
+.error-hint {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+/* ===== Nearest Sunshine Banner ===== */
+.nearest-sunshine {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.nearest-sunshine.here-sunny {
+  background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+  border: 2px solid var(--sun-yellow);
+  box-shadow: 0 4px 25px rgba(255, 184, 0, 0.3);
+}
+
+.nearest-sunshine.has-sun {
+  background: linear-gradient(135deg, #E3F2FD, #FFF8E1);
+  border: 2px solid #90CAF9;
+  box-shadow: 0 4px 20px rgba(144, 202, 249, 0.25);
+}
+
+.nearest-sunshine.no-sun {
+  background: linear-gradient(135deg, #ECEFF1, #F5F5F5);
+  border: 2px solid var(--cloud-gray);
+}
+
+.nearest-sunshine.night-banner {
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  border: 2px solid #7986cb;
+  box-shadow: 0 4px 20px rgba(92, 107, 192, 0.2);
+}
+
+.nearest-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.nearest-content {
+  flex: 1;
+}
+
+.nearest-content h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.nearest-content p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.nearest-distance {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sun-orange);
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* ===== Sun Map ===== */
+.sun-map {
+  padding-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-icon {
+  font-size: 1.4rem;
+}
+
+.section-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* ===== Card Grid ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* ===== Location Card ===== */
+.location-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.location-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.location-card.sunny {
+  border-color: rgba(255, 184, 0, 0.3);
+  background: linear-gradient(135deg, #FFFDF5 0%, #FFF8E7 100%);
+}
+
+.location-card.sunny::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.location-card.not-sunny {
+  border-color: rgba(176, 190, 197, 0.3);
+  background: linear-gradient(135deg, #FAFAFA 0%, #F0F4F8 100%);
+}
+
+.location-card.night {
+  border-color: rgba(92, 107, 192, 0.3);
+  background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+}
+
+.location-card.night .stat {
+  background: rgba(92, 107, 192, 0.15);
+}
+
+.location-card.night .card-distance {
+  color: #5c6bc0;
+  background: rgba(92, 107, 192, 0.1);
+}
+
+.location-card.is-user {
+  border-color: var(--sun-yellow);
+  box-shadow: 0 4px 25px rgba(255, 184, 0, 0.25);
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.you-badge {
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.card-direction {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.card-description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.card-stats {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.stat {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  background: rgba(255, 184, 0, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+}
+
+.not-sunny .stat {
+  background: rgba(176, 190, 197, 0.2);
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-wind {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.card-distance {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sun-orange);
+  background: rgba(255, 140, 0, 0.1);
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+}
+
+/* ===== Sunny Section Glow ===== */
+.sunny-section h2 {
+  color: var(--sun-orange);
+}
+
+.cloudy-section h2 {
+  color: var(--cloud-gray);
+}
+
+.night-section h2 {
+  color: #5c6bc0;
+}
+
+/* ===== No Data ===== */
+.no-data {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 0;
+  font-size: 1.1rem;
+}
+
+/* ===== Footer ===== */
+.app-footer {
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(255, 184, 0, 0.15);
+  margin-top: 1rem;
+}
+
+.app-footer p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ===== Weather Map ===== */
+.weather-map-container {
+  height: 100%;
+}
+
+.map-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  border: 2px solid rgba(255, 184, 0, 0.2);
+  height: 100%;
+}
+
+.weather-map {
+  height: 100%;
+  min-height: 500px;
+  width: 100%;
+  z-index: 1;
+}
+
+.weather-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.marker-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.marker-bubble:hover {
+  transform: scale(1.15);
+}
+
+.marker-sunny {
+  background: linear-gradient(135deg, #FFF8E7, #FFE082);
+  border: 2px solid var(--sun-yellow);
+}
+
+.marker-cloudy {
+  background: linear-gradient(135deg, #F0F4F8, #CFD8DC);
+  border: 2px solid var(--cloud-gray);
+}
+
+.marker-night {
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  border: 2px solid #5c6bc0;
+}
+
+.marker-pin {
+  background: linear-gradient(135deg, #CE93D8, #AB47BC);
+  border: 2px solid #8E24AA;
+  font-size: 1.3rem;
+}
+
+.marker-user {
+  background: linear-gradient(135deg, var(--sun-yellow), var(--sun-orange));
+  border: 2px solid var(--sun-orange);
+  font-size: 1.3rem;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  font-family: 'Nunito', sans-serif !important;
+}
+
+.leaflet-popup-content {
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+}
+
+/* ===== Map Pin Overlay ===== */
+.map-pin-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.map-pin-name {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #6A1B9A;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #CE93D8;
+}
+
+.map-back-btn {
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 2px solid #AB47BC;
+  background: #FFFFFF;
+  color: #8E24AA;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.map-back-btn:hover {
+  background: #AB47BC;
+  color: #FFFFFF;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .map-with-controls {
+    flex-direction: column;
+  }
+
+  .map-side-panel {
+    width: 100%;
+  }
+
+  .map-center {
+    order: -1;
+  }
+
+  .vertical-control {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .vertical-slider-row {
+    flex-direction: row;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .vertical-slider {
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    min-height: 6px;
+    flex: 1;
+  }
+
+  .vertical-slider.radius-slider {
+    background: linear-gradient(90deg, var(--sun-warm) 0%, var(--sun-yellow) 50%, var(--sun-orange) 100%);
+  }
+
+  .vertical-slider.time-slider {
+    background: linear-gradient(90deg, #87CEEB 0%, var(--sun-yellow) 40%, var(--sun-orange) 100%);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .location-card {
+    padding: 1rem;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+  }
+
+  .weather-map {
+    min-height: 300px;
+  }
+
+  .nearest-sunshine {
+    flex-direction: column;
+    text-align: center;
+  }
+}
