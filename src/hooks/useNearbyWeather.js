@@ -196,7 +196,11 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
                 { signal: controller.signal }
               )
                 .then((r) => r.json())
-                .then((d) => d.locality || d.city || null)
+                .then((d) => {
+                  const name = d.locality || d.city || null;
+                  if (!name || name.length > 40) return null;
+                  return name;
+                })
             )
           ).then((results) => {
             if (controller.signal.aborted) return;
