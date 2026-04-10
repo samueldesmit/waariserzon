@@ -135,7 +135,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
                 icon={createWeatherIcon(place.weather.icon, isSunny, isNight)}
               >
                 <Popup>
-                  <strong>{place.label}</strong>
+                  <strong>{place.cityName || place.label}</strong>
                   <br />
                   {place.weather.icon} {place.weather.description}
                   <br />
