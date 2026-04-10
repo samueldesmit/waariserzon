@@ -3,6 +3,22 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import CITIES from '../data/cities';
+
+function findNearestCity(lat, lon) {
+  let bestName = null;
+  let bestDist = Infinity;
+  for (let i = 0; i < CITIES.length; i++) {
+    const dLat = CITIES[i][0] - lat;
+    const dLon = CITIES[i][1] - lon;
+    const dist = dLat * dLat + dLon * dLon;
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestName = CITIES[i][2];
+    }
+  }
+  return bestName;
+}
 
 function createWeatherIcon(emoji, isSunny, isNight) {
   const cls = isNight ? 'marker-night' : isSunny ? 'marker-sunny' : 'marker-cloudy';
@@ -49,7 +65,8 @@ function FitBounds({ places }) {
 function MapClickHandler({ onPinLocation }) {
   useMapEvents({
     click(e) {
-      onPinLocation({ lat: e.latlng.lat, lon: e.latlng.lng });
+      const cityName = findNearestCity(e.latlng.lat, e.latlng.lng);
+      onPinLocation({ lat: e.latlng.lat, lon: e.latlng.lng, name: cityName, cityName });
     },
   });
   return null;
@@ -104,7 +121,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
           {userPlace && (
             <Marker position={[userPlace.lat, userPlace.lon]} icon={createUserIcon()}>
               <Popup>
-                <strong>{pinnedLocation ? t('pinnedLocationLabel') : t('yourLocation')}</strong>
+                <strong>{userPlace.cityName || (pinnedLocation ? t('pinnedLocationLabel') : t('yourLocation'))}</strong>
                 <br />
                 {userPlace.weather?.icon} {userPlace.weather?.description}
                 <br />
@@ -116,9 +133,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
           {pinnedLocation && (
             <Marker position={[pinnedLocation.lat, pinnedLocation.lon]} icon={createPinIcon()}>
               <Popup>
-                <strong>{pinnedLocation.name || t('pinnedLocationLabel')}</strong>
-                <br />
-                {pinnedLocation.lat.toFixed(4)}, {pinnedLocation.lon.toFixed(4)}
+                <strong>{pinnedLocation.cityName || pinnedLocation.name || t('pinnedLocationLabel')}</strong>
               </Popup>
             </Marker>
           )}
@@ -135,7 +150,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
                 icon={createWeatherIcon(place.weather.icon, isSunny, isNight)}
               >
                 <Popup>
-                  <strong>{place.cityName || place.label}</strong>
+                  <strong>{place.cityName || `${place.lat.toFixed(2)}°, ${place.lon.toFixed(2)}°`}</strong>
                   <br />
                   {place.weather.icon} {place.weather.description}
                   <br />

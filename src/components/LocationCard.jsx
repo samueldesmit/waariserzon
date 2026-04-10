@@ -11,14 +11,11 @@ export default function LocationCard({ place, isUser }) {
 
   return (
     <div className={`location-card ${isSunny ? 'sunny' : 'not-sunny'} ${isNight ? 'night' : ''} ${isUser ? 'is-user' : ''}`}>
-      {isUser && <div className="you-badge">{t('youAreHere')}</div>}
       <div className="card-icon" aria-hidden="true">{place.weather.icon}</div>
       <h3 className="card-direction">
-        {place.cityName || place.label}
+        {isUser ? (place.cityName || t('youAreHere')) : (place.cityName || `${place.lat.toFixed(2)}°, ${place.lon.toFixed(2)}°`)}
       </h3>
-      {place.cityName && place.label !== place.cityName && (
-        <p className="card-sublabel">{place.label}</p>
-      )}
+      {isUser && <p className="card-sublabel">{t('youAreHere')}</p>}
       <p className="card-description">{place.weather.description}</p>
       <div className="card-stats">
         <span className="stat">{Math.round(place.weather.temperature)}°C</span>

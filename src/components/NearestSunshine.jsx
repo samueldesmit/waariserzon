@@ -25,8 +25,8 @@ export default function NearestSunshine({ places }) {
         <div className="nearest-sunshine has-sun night-banner" role="status">
           <div className="nearest-icon" aria-hidden="true">🌅</div>
           <div className="nearest-content">
-            <h2>{t('sunStillUp', { place: nearest.cityName || nearest.label })}</h2>
-            <p>{t('nightButSun', { place: nearest.cityName || nearest.label, distance: nearest.distance })}</p>
+            <h2>{t('sunStillUp', { place: nearest.cityName || `${nearest.lat.toFixed(2)}°, ${nearest.lon.toFixed(2)}°` })}</h2>
+            <p>{t('nightButSun', { place: nearest.cityName || `${nearest.lat.toFixed(2)}°, ${nearest.lon.toFixed(2)}°`, distance: nearest.distance })}</p>
           </div>
           <div className="nearest-distance">{nearest.distance} km</div>
         </div>
@@ -77,8 +77,8 @@ export default function NearestSunshine({ places }) {
     <div className="nearest-sunshine has-sun" role="status">
       <div className="nearest-icon" aria-hidden="true">☀️</div>
       <div className="nearest-content">
-        <h2>{t('nearestSunshine', { place: nearest.cityName || nearest.label })}</h2>
-        <p>{t('headTo', { place: nearest.cityName || nearest.label, distance: nearest.distance, description: nearest.weather.description, temp: Math.round(nearest.weather.temperature) })}</p>
+        <h2>{t('nearestSunshine', { place: nearest.cityName || `${nearest.lat.toFixed(2)}°, ${nearest.lon.toFixed(2)}°` })}</h2>
+        <p>{t('headTo', { place: nearest.cityName || `${nearest.lat.toFixed(2)}°, ${nearest.lon.toFixed(2)}°`, distance: nearest.distance, description: nearest.weather.description, temp: Math.round(nearest.weather.temperature) })}</p>
       </div>
       <div className="nearest-distance">{nearest.distance} km</div>
     </div>

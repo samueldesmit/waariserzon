@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { translations, t } from '../i18n/translations';
+import CITIES from '../data/cities';
 
 const DIRECTIONS = [
   { key: 'north', short: 'N', dLat: 1, dLon: 0 },
@@ -53,6 +54,22 @@ function haversineKm(lat1, lon1, lat2, lon2) {
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Find nearest city name from static dataset (instant, no API calls)
+function findNearestCity(lat, lon) {
+  let bestName = null;
+  let bestDist = Infinity;
+  for (let i = 0; i < CITIES.length; i++) {
+    const dLat = CITIES[i][0] - lat;
+    const dLon = CITIES[i][1] - lon;
+    const dist = dLat * dLat + dLon * dLon; // squared distance is fine for comparison
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestName = CITIES[i][2];
+    }
+  }
+  return bestName;
 }
 
 // WMO weather codes — day/night aware, translated
@@ -184,34 +201,14 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
               },
             };
           });
-          setPlaces(enriched);
+          // Add nearest city names instantly from static dataset
+          const withCities = enriched.map((place) => ({
+            ...place,
+            cityName: findNearestCity(place.lat, place.lon),
+          }));
+          setPlaces(withCities);
           setInitialLoading(false);
           setRefreshing(false);
-
-          // Reverse geocode all points to get city names (BigDataCloud — no rate limits)
-          Promise.allSettled(
-            enriched.map((p) =>
-              fetch(
-                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${p.lat.toFixed(4)}&longitude=${p.lon.toFixed(4)}&localityLanguage=${lang}`,
-                { signal: controller.signal }
-              )
-                .then((r) => r.json())
-                .then((d) => {
-                  const name = d.locality || d.city || null;
-                  if (!name || name.length > 40) return null;
-                  return name;
-                })
-            )
-          ).then((results) => {
-            if (controller.signal.aborted) return;
-            setPlaces((current) =>
-              current.map((place, i) => {
-                const r = results[i];
-                const name = r.status === 'fulfilled' && r.value ? r.value : null;
-                return name ? { ...place, cityName: name } : place;
-              })
-            );
-          });
         })
         .catch((err) => {
           if (err.name === 'AbortError') return;
