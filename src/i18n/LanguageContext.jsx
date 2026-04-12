@@ -15,7 +15,7 @@ export function LanguageProvider({ children }) {
   const tr = (key, replacements) => t(strings, key, replacements);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t: tr }}>
+    <LanguageContext.Provider value={{ lang, setLang, t: tr, strings }}>
       {children}
     </LanguageContext.Provider>
   );

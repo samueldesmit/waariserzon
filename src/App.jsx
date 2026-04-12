@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useNearbyWeather } from './hooks/useNearbyWeather';
+import { useSunshineHourly } from './hooks/useSunshineHourly';
 import SunMap from './components/SunMap';
 import LocationCard from './components/LocationCard';
+import SunshineGraph from './components/SunshineGraph';
 import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
@@ -40,12 +42,14 @@ function LanguageSwitcher() {
 }
 
 function App() {
-  const { t, lang } = useLanguage();
+  const { t, lang, strings } = useLanguage();
   const [radiusKm, setRadiusKm] = useState(60);
   const [hoursAhead, setHoursAhead] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
-  const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(pinnedLocation ?? location, radiusKm, hoursAhead, lang);
+  const activeLocation = pinnedLocation ?? location;
+  const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(activeLocation, radiusKm, hoursAhead, lang);
+  const { hours: sunshineHours } = useSunshineHourly(activeLocation, hoursAhead);
 
   // Keep html lang attribute in sync with selected language
   useEffect(() => {
@@ -201,6 +205,9 @@ function App() {
               radiusKm={radiusKm}
               pinnedLocation={pinnedLocation}
               onPinLocation={setPinnedLocation}
+              sunshineGraph={sunshineHours && userPlace ? (
+                <SunshineGraph allHours={sunshineHours} cityName={userPlace.cityName} hoursAhead={hoursAhead} />
+              ) : null}
             />
 
             {userPlace && (
@@ -211,6 +218,32 @@ function App() {
           </>
         )}
       </main>
+
+        <section className="seo-section">
+          <h2>{t('seoHeading')}</h2>
+          <p>{t('seoText')}</p>
+
+          <h3>{t('seoHeading2')}</h3>
+          <p>{t('seoText2')}</p>
+
+          <h3>{t('seoHeading3')}</h3>
+          <p>{t('seoText3')}</p>
+
+          <h3>{t('seoHeading4')}</h3>
+          <p>{t('seoText4')}</p>
+        </section>
+
+        <section className="faq-section" itemScope itemType="https://schema.org/FAQPage">
+          <h2>{t('faqTitle')}</h2>
+          {(strings.faqItems || []).map((item, i) => (
+            <details key={i} className="faq-item" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+              <summary itemProp="name">{item.q}</summary>
+              <div className="faq-answer" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                <p itemProp="text">{item.a}</p>
+              </div>
+            </details>
+          ))}
+        </section>
 
       <footer className="app-footer">
         <p>

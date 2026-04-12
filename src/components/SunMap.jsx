@@ -3,7 +3,7 @@ import WeatherMap from './WeatherMap';
 import NearestSunshine from './NearestSunshine';
 import { useLanguage } from '../i18n/LanguageContext';
 
-export default function SunMap({ places, refreshing, leftPanel, rightPanel, radiusKm, pinnedLocation, onPinLocation }) {
+export default function SunMap({ places, refreshing, leftPanel, rightPanel, radiusKm, pinnedLocation, onPinLocation, sunshineGraph }) {
   const { t } = useLanguage();
   const nearby = places.filter((p) => p.short !== 'Here');
   const userPlace = places.find((p) => p.short === 'Here');
@@ -38,6 +38,8 @@ export default function SunMap({ places, refreshing, leftPanel, rightPanel, radi
       </section>
 
       <NearestSunshine places={places} />
+
+      {sunshineGraph}
 
       {sunnyPlaces.length > 0 && (
         <section className="section sunny-section">
