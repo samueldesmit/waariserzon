@@ -1,50 +1,49 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { translations, t } from '../i18n/translations';
 import CITIES from '../data/cities';
 
-const DIRECTIONS = [
-  { key: 'north', short: 'N', dLat: 1, dLon: 0 },
-  { key: 'northeast', short: 'NE', dLat: 0.7, dLon: 0.7 },
-  { key: 'east', short: 'E', dLat: 0, dLon: 1 },
-  { key: 'southeast', short: 'SE', dLat: -0.7, dLon: 0.7 },
-  { key: 'south', short: 'S', dLat: -1, dLon: 0 },
-  { key: 'southwest', short: 'SW', dLat: -0.7, dLon: -0.7 },
-  { key: 'west', short: 'W', dLat: 0, dLon: -1 },
-  { key: 'northwest', short: 'NW', dLat: 0.7, dLon: -0.7 },
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
+const DIRECTION_KEYS = [
+  'north', 'northeast', 'east', 'southeast',
+  'south', 'southwest', 'west', 'northwest',
 ];
 
-// 1 degree latitude ≈ 111 km
-function kmToDegrees(km) {
-  return km / 111;
+function pointCountForRadius(radiusKm) {
+  const n = Math.round(15 + Math.sqrt(radiusKm) * 7);
+  return Math.max(30, Math.min(120, n));
+}
+
+function bearingToDirectionKey(dLat, dLon) {
+  const angle = (Math.atan2(dLon, dLat) * 180) / Math.PI;
+  const idx = Math.round(((angle + 360) % 360) / 45) % 8;
+  return DIRECTION_KEYS[idx];
 }
 
 function generateNearbyPoints(lat, lon, radiusKm, strings) {
   const points = [{ label: strings.youAreHere, short: 'Here', lat, lon, distance: 0 }];
+  const count = pointCountForRadius(radiusKm);
+  const lonScale = 111 * Math.cos((lat * Math.PI) / 180);
 
-  const rings = [
-    { factor: 1 / 3, suffix: '' },
-    { factor: 2 / 3, suffix: '' },
-    { factor: 1, suffix: ` ${strings.far}` },
-  ];
-
-  for (let r = 0; r < rings.length; r++) {
-    const ring = rings[r];
-    const offsetKm = radiusKm * ring.factor;
-    const offset = kmToDegrees(offsetKm);
-    for (const dir of DIRECTIONS) {
-      points.push({
-        label: `${t(strings, dir.key)}${ring.suffix}`,
-        short: `${dir.short}${r > 0 ? r + 1 : ''}`,
-        lat: lat + dir.dLat * offset,
-        lon: lon + dir.dLon * offset,
-        distance: Math.round(offsetKm),
-      });
-    }
+  for (let i = 0; i < count; i++) {
+    const t01 = (i + 1) / (count + 1);
+    const r = Math.sqrt(t01) * radiusKm;
+    const theta = (i + 1) * GOLDEN_ANGLE;
+    const dLat = (r * Math.cos(theta)) / 111;
+    const dLon = (r * Math.sin(theta)) / lonScale;
+    const dirKey = bearingToDirectionKey(dLat, dLon);
+    const distKm = Math.round(r);
+    const suffix = distKm > radiusKm * 0.85 ? ` ${strings.far}` : '';
+    points.push({
+      label: `${t(strings, dirKey)}${suffix}`,
+      short: `P${i}`,
+      lat: lat + dLat,
+      lon: lon + dLon,
+      distance: distKm,
+    });
   }
   return points;
 }
 
-// Haversine distance in km
 function haversineKm(lat1, lon1, lat2, lon2) {
   const toRad = (v) => (v * Math.PI) / 180;
   const R = 6371;
@@ -56,14 +55,13 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Find nearest city name from static dataset (instant, no API calls)
 function findNearestCity(lat, lon) {
   let bestName = null;
   let bestDist = Infinity;
   for (let i = 0; i < CITIES.length; i++) {
     const dLat = CITIES[i][0] - lat;
     const dLon = CITIES[i][1] - lon;
-    const dist = dLat * dLat + dLon * dLon; // squared distance is fine for comparison
+    const dist = dLat * dLat + dLon * dLon;
     if (dist < bestDist) {
       bestDist = dist;
       bestName = CITIES[i][2];
@@ -72,7 +70,6 @@ function findNearestCity(lat, lon) {
   return bestName;
 }
 
-// WMO weather codes — day/night aware, translated
 function interpretWeatherCode(code, isDay, strings) {
   if (code <= 1) {
     if (isDay) return { condition: 'sunny', icon: '☀️', description: strings.clearSky };
@@ -93,27 +90,29 @@ function interpretWeatherCode(code, isDay, strings) {
   return { condition: 'unknown', icon: '❓', description: strings.unknown };
 }
 
-// Find the index in hourly.time that best matches the target date
-function findHourIndex(times, targetDate) {
-  const targetISO = targetDate.toISOString().slice(0, 13);
-  for (let i = 0; i < times.length; i++) {
-    if (times[i].startsWith(targetISO)) return i;
-  }
+function findHourPair(times, targetDate) {
   const targetMs = targetDate.getTime();
-  let best = 0;
-  let bestDiff = Infinity;
+  let lower = 0;
   for (let i = 0; i < times.length; i++) {
-    const diff = Math.abs(new Date(times[i]).getTime() - targetMs);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      best = i;
-    }
+    const t = new Date(times[i]).getTime();
+    if (t <= targetMs) lower = i;
+    else break;
   }
-  return best;
+  const upper = Math.min(lower + 1, times.length - 1);
+  const lowerMs = new Date(times[lower]).getTime();
+  const upperMs = new Date(times[upper]).getTime();
+  const frac = upperMs > lowerMs
+    ? Math.max(0, Math.min(1, (targetMs - lowerMs) / (upperMs - lowerMs)))
+    : 0;
+  return { lower, upper, frac };
 }
 
+const lerp = (a, b, f) => a * (1 - f) + b * f;
+
 export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang = 'en') {
-  const [places, setPlaces] = useState([]);
+  // Prefetched data: stable across hoursAhead changes so scrubbing is instant
+  const [snapshot, setSnapshot] = useState(null);
+  // snapshot: { points, hourly: [{ time, weatherCode, temperature, cloudCover, windSpeed, isDay }] }
   const [initialLoading, setInitialLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -122,32 +121,27 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
 
   const strings = translations[lang] || translations.en;
 
+  // Fetch hourly forecast for the full 0–72h+ window. Only refetches when the
+  // map area or language actually change — NOT when the user scrubs time.
   useEffect(() => {
     if (!location) return;
 
-    // Cancel pending debounce
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    // Cancel in-flight request
     if (abortRef.current) abortRef.current.abort();
 
-    const isFirst = places.length === 0;
+    const isFirst = !snapshot;
     if (!isFirst) setRefreshing(true);
-
-    const delay = isFirst ? 0 : 400;
+    const delay = isFirst ? 0 : 250;
 
     debounceRef.current = setTimeout(() => {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const points = generateNearbyPoints(location.lat, location.lon, radiusKm, strings);
-      const lats = points.map((p) => p.lat.toFixed(4)).join(',');
-      const lons = points.map((p) => p.lon.toFixed(4)).join(',');
-
-      const forecastDays = Math.ceil(hoursAhead / 24) + 1;
-      const params = hoursAhead === 0
-        ? 'current=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day'
-        : `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&forecast_days=${forecastDays}`;
-
+      const generated = generateNearbyPoints(location.lat, location.lon, radiusKm, strings);
+      const lats = generated.map((p) => p.lat.toFixed(4)).join(',');
+      const lons = generated.map((p) => p.lon.toFixed(4)).join(',');
+      const params =
+        'hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&forecast_days=4';
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;
 
       fetch(url, { signal: controller.signal })
@@ -157,58 +151,26 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
         })
         .then((data) => {
           const results = Array.isArray(data) ? data : [data];
-          const userLat = location.lat;
-          const userLon = location.lon;
-          const targetDate = new Date(Date.now() + hoursAhead * 3600 * 1000);
-
-          const enriched = points.map((point, i) => {
-            const result = results[i];
-            if (!result) return { ...point, weather: null };
-
-            let weatherCode, temperature, cloudCover, windSpeed, isDay;
-
-            if (hoursAhead === 0) {
-              const current = result.current;
-              if (!current) return { ...point, weather: null };
-              weatherCode = current.weather_code;
-              temperature = current.temperature_2m;
-              cloudCover = current.cloud_cover;
-              windSpeed = current.wind_speed_10m;
-              isDay = current.is_day === 1;
-            } else {
-              const hourly = result.hourly;
-              if (!hourly || !hourly.time) return { ...point, weather: null };
-              const idx = findHourIndex(hourly.time, targetDate);
-              weatherCode = hourly.weather_code[idx];
-              temperature = hourly.temperature_2m[idx];
-              cloudCover = hourly.cloud_cover[idx];
-              windSpeed = hourly.wind_speed_10m[idx];
-              isDay = hourly.is_day[idx] === 1;
-            }
-
-            const weather = interpretWeatherCode(weatherCode, isDay, strings);
-            const distKm = Math.round(haversineKm(userLat, userLon, point.lat, point.lon));
+          const points = generated.map((p) => ({
+            ...p,
+            cityName: findNearestCity(p.lat, p.lon),
+            distance: Math.round(haversineKm(location.lat, location.lon, p.lat, p.lon)),
+          }));
+          const hourly = results.map((r) => {
+            if (!r?.hourly?.time) return null;
             return {
-              ...point,
-              distance: distKm,
-              weather: {
-                ...weather,
-                temperature,
-                cloudCover,
-                windSpeed,
-                weatherCode,
-                isDay,
-              },
+              time: r.hourly.time,
+              weatherCode: r.hourly.weather_code,
+              temperature: r.hourly.temperature_2m,
+              cloudCover: r.hourly.cloud_cover,
+              windSpeed: r.hourly.wind_speed_10m,
+              isDay: r.hourly.is_day,
             };
           });
-          // Add nearest city names instantly from static dataset
-          const withCities = enriched.map((place) => ({
-            ...place,
-            cityName: findNearestCity(place.lat, place.lon),
-          }));
-          setPlaces(withCities);
+          setSnapshot({ points, hourly });
           setInitialLoading(false);
           setRefreshing(false);
+          setError(null);
         })
         .catch((err) => {
           if (err.name === 'AbortError') return;
@@ -221,7 +183,40 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [location, radiusKm, hoursAhead, lang]);
+    // strings is a stable reference per lang; depending on lang directly
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location?.lat, location?.lon, radiusKm, lang]);
+
+  // Slice the cached forecast at the user's chosen hour. Pure client-side, and
+  // interpolates between adjacent hours so the cloud overlay morphs smoothly
+  // when the user scrubs (Buienradar-style animation).
+  const places = useMemo(() => {
+    if (!snapshot) return [];
+    const targetDate = new Date(Date.now() + hoursAhead * 3600 * 1000);
+    return snapshot.points.map((point, i) => {
+      const h = snapshot.hourly[i];
+      if (!h) return { ...point, weather: null };
+      const { lower, upper, frac } = findHourPair(h.time, targetDate);
+      // Discrete attributes (day/night, weather code) snap to nearest hour so
+      // the marker emoji doesn't flicker while interpolating.
+      const snapIdx = frac < 0.5 ? lower : upper;
+      const isDay = h.isDay[snapIdx] === 1;
+      const weatherCode = h.weatherCode[snapIdx];
+      const weather = interpretWeatherCode(weatherCode, isDay, strings);
+      return {
+        ...point,
+        weather: {
+          ...weather,
+          temperature: lerp(h.temperature[lower], h.temperature[upper], frac),
+          cloudCover: lerp(h.cloudCover[lower], h.cloudCover[upper], frac),
+          windSpeed: lerp(h.windSpeed[lower], h.windSpeed[upper], frac),
+          weatherCode,
+          isDay,
+        },
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapshot, hoursAhead, lang]);
 
   return { places, loading: initialLoading, refreshing, error };
 }

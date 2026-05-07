@@ -4,22 +4,37 @@ import { useNearbyWeather } from './hooks/useNearbyWeather';
 import { useSunshineHourly } from './hooks/useSunshineHourly';
 import WeatherMap from './components/WeatherMap';
 import BestDestinationCard from './components/BestDestinationCard';
+import NightCard from './components/NightCard';
 import SunRanking from './components/SunRanking';
 import ForecastTimeline from './components/ForecastTimeline';
 import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
-const TIME_OPTIONS = [
+const TIME_TICKS = [
   { value: 0, key: 'now' },
-  { value: 3, label: '+3h' },
+  { value: 2, label: '+2h' },
+  { value: 4, label: '+4h' },
   { value: 6, label: '+6h' },
-  { value: 12, label: '+12h' },
-  { value: 24, label: '+1d' },
-  { value: 48, label: '+2d' },
-  { value: 72, label: '+3d' },
+  { value: 8, label: '+8h' },
 ];
+const TIME_MAX = 8;
 
 const RADIUS_OPTIONS = [30, 60, 100, 200, 500];
+
+function formatScrubberLabel(hoursAhead, lang, t) {
+  if (hoursAhead === 0) return t('now');
+  const now = new Date();
+  const target = new Date(now.getTime() + hoursAhead * 3600 * 1000);
+  const time = target.toLocaleTimeString(lang === 'nl' ? 'nl-NL' : 'en-GB', {
+    hour: '2-digit', minute: '2-digit',
+  });
+  const startOfToday = new Date(now); startOfToday.setHours(0, 0, 0, 0);
+  const dayDelta = Math.floor((target.getTime() - startOfToday.getTime()) / 86400000);
+  if (dayDelta === 0) return `${t('today')} ${time}`;
+  if (dayDelta === 1) return `${t('tomorrow')} ${time}`;
+  const weekday = target.toLocaleDateString(lang === 'nl' ? 'nl-NL' : 'en-GB', { weekday: 'short' });
+  return `${weekday} ${time}`;
+}
 
 function BrandLogo() {
   return (
@@ -56,6 +71,30 @@ function App() {
   const [hoursAhead, setHoursAhead] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const [searchValue, setSearchValue] = useState('');
+  const [playing, setPlaying] = useState(false);
+
+  // Auto-advance the scrubber smoothly. 0.1h every 80ms → 6.4s full sweep,
+  // ~12fps. Combined with sub-hour interpolation in useNearbyWeather, the
+  // cloud overlay morphs continuously like a weather radar.
+  useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => {
+      setHoursAhead((h) => {
+        const next = +(h + 0.1).toFixed(2);
+        if (next >= TIME_MAX) {
+          setPlaying(false);
+          return 0;
+        }
+        return next;
+      });
+    }, 80);
+    return () => clearInterval(id);
+  }, [playing]);
+
+  const adjustHours = (delta) => {
+    setPlaying(false);
+    setHoursAhead((h) => Math.min(TIME_MAX, Math.max(0, +(h + delta).toFixed(2))));
+  };
   const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
   const activeLocation = pinnedLocation ?? location;
   const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(
@@ -71,8 +110,35 @@ function App() {
   }, [lang]);
 
   const userPlace = places.find((p) => p.short === 'Here');
-  const isNight = userPlace && !userPlace.weather?.isDay;
+  const isNight = !!(userPlace && userPlace.weather && !userPlace.weather.isDay);
   const fromName = pinnedLocation?.name || pinnedLocation?.cityName || userPlace?.cityName || '';
+
+  // Compute sunrise based on hourly forecast: first daytime hour after now
+  const { sunriseTime, hoursToSunrise } = useMemo(() => {
+    if (!isNight || !sunshineHours || sunshineHours.length === 0) {
+      return { sunriseTime: null, hoursToSunrise: null };
+    }
+    const nowMs = Date.now();
+    let firstDayHour = null;
+    let prev = null;
+    for (const h of sunshineHours) {
+      // sunrise = transition from night -> day, after now
+      if (h.time.getTime() < nowMs) { prev = h; continue; }
+      if (h.isDay && (!prev || !prev.isDay)) { firstDayHour = h; break; }
+      prev = h;
+    }
+    // Fallback: any future daytime hour
+    if (!firstDayHour) {
+      firstDayHour = sunshineHours.find((h) => h.time.getTime() >= nowMs && h.isDay) || null;
+    }
+    if (!firstDayHour) return { sunriseTime: null, hoursToSunrise: null };
+    const delta = (firstDayHour.time.getTime() - nowMs) / 3600000;
+    return { sunriseTime: firstDayHour.time, hoursToSunrise: delta };
+  }, [isNight, sunshineHours]);
+
+  const handleSkipToSunrise = (hours) => {
+    setHoursAhead(Math.min(TIME_MAX, Math.max(1, Math.ceil(hours))));
+  };
 
   // Sync search field with active city when it changes (unless user is typing)
   useEffect(() => {
@@ -90,20 +156,28 @@ function App() {
       .filter((p) => p.weather)
       .map((p) => ({
         ...p,
-        sunChance: Math.max(0, 100 - p.weather.cloudCover),
+        sunChance: Math.round(Math.max(0, 100 - p.weather.cloudCover)),
       }));
     const sorted = [...enriched].sort((a, b) => b.sunChance - a.sunChance);
     const best = sorted[0];
-    // Ranking excludes the user origin only when there is a clearly better nearby option
-    const rankingPool = sorted.filter((p) => p.short !== 'Here');
-    return { bestPlace: best, sunnyRanking: rankingPool.slice(0, 3) };
+    // Ranking: dedupe by city name so we don't show the same town three times.
+    const seen = new Set();
+    const rankingPool = [];
+    for (const p of sorted) {
+      if (p.short === 'Here') continue;
+      const key = p.cityName || `${p.lat.toFixed(2)},${p.lon.toFixed(2)}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rankingPool.push(p);
+      if (rankingPool.length >= 3) break;
+    }
+    return { bestPlace: best, sunnyRanking: rankingPool };
   }, [places]);
 
-  const timeLabel = useMemo(() => {
-    if (hoursAhead === 0) return t('now');
-    if (hoursAhead < 24) return `+${hoursAhead}h`;
-    return `+${hoursAhead / 24}d`;
-  }, [hoursAhead, t]);
+  const timeLabel = useMemo(
+    () => formatScrubberLabel(hoursAhead, lang, t),
+    [hoursAhead, lang, t],
+  );
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -209,60 +283,35 @@ function App() {
       {active && !loading && !error && places.length > 0 && bestPlace && (
         <>
           <section className="answer-grid" aria-label={t('sunAdvice')}>
-            <BestDestinationCard
-              best={bestPlace}
-              fromLocation={activeLocation}
-              isNight={isNight}
-            />
-            <aside className="settings-card" aria-label={t('searchFilters')}>
-              <div className="setting-row">
-                <div>
-                  <span className="label">{t('momentLabel')}</span>
-                  <strong>{timeLabel}</strong>
-                </div>
-                <div className="chips" role="group" aria-label={t('momentLabel')}>
-                  {TIME_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={opt.value === hoursAhead ? 'active' : ''}
-                      onClick={() => setHoursAhead(opt.value)}
-                      aria-pressed={opt.value === hoursAhead}
-                    >
-                      {opt.key ? t(opt.key) : opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="setting-row">
-                <div>
-                  <span className="label">{t('radiusLabel')}</span>
-                  <strong>{radiusKm} km</strong>
-                </div>
-                <div className="chips" role="group" aria-label={t('radiusLabel')}>
-                  {RADIUS_OPTIONS.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      className={r === radiusKm ? 'active' : ''}
-                      onClick={() => setRadiusKm(r)}
-                      aria-pressed={r === radiusKm}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </aside>
+            {isNight ? (
+              <NightCard
+                cityName={fromName || userPlace?.cityName || t('yourLocation')}
+                weather={userPlace?.weather}
+                sunriseTime={sunriseTime}
+                hoursToSunrise={hoursToSunrise}
+                onSkipToSunrise={handleSkipToSunrise}
+              />
+            ) : (
+              <BestDestinationCard
+                best={bestPlace}
+                fromLocation={activeLocation}
+                isNight={isNight}
+              />
+            )}
           </section>
 
-          <section className="workbench" aria-label={t('mapAndAlternatives')}>
+          <section className="map-stage" aria-label={t('mapAndAlternatives')}>
             <section className="sun-map-frame" aria-label={t('sunshineNearby')}>
+              <div className="map-time-badge">
+                <span className="label">{t('momentLabel')}</span>
+                <strong>{timeLabel}</strong>
+              </div>
               <WeatherMap
                 places={places}
                 radiusKm={radiusKm}
                 pinnedLocation={pinnedLocation}
                 onPinLocation={setPinnedLocation}
+                hoursAhead={hoursAhead}
               />
               {refreshing && (
                 <div className="map-refreshing-overlay">
@@ -272,14 +321,16 @@ function App() {
               )}
               <div className="map-overlay">
                 <div>
-                  <span className="label">{t('routeLabel')}</span>
+                  <span className="label">{isNight ? t('nightKicker') : t('routeLabel')}</span>
                   <strong>
-                    {bestPlace && bestPlace.distance > 0 && fromName
-                      ? t('routeFromTo', { from: fromName, to: bestPlace.cityName })
-                      : fromName || t('yourLocation')}
+                    {isNight
+                      ? fromName || t('yourLocation')
+                      : bestPlace && bestPlace.distance > 0 && fromName
+                        ? t('routeFromTo', { from: fromName, to: bestPlace.cityName })
+                        : fromName || t('yourLocation')}
                   </strong>
                 </div>
-                {bestPlace && bestPlace.distance > 0 && activeLocation && (
+                {!isNight && bestPlace && bestPlace.distance > 0 && activeLocation && (
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&origin=${activeLocation.lat},${activeLocation.lon}&destination=${bestPlace.lat},${bestPlace.lon}`}
                     target="_blank"
@@ -292,16 +343,91 @@ function App() {
               </div>
             </section>
 
-            <aside className="side-stack">
-              <SunRanking places={sunnyRanking} onSelect={handleRankingSelect} />
-              {sunshineHours && userPlace && (
-                <ForecastTimeline
-                  allHours={sunshineHours}
-                  cityName={userPlace.cityName}
-                  hoursAhead={hoursAhead}
-                />
-              )}
-            </aside>
+            <div className="time-controls" aria-label={t('momentLabel')}>
+              <div className="time-bar">
+                <button
+                  type="button"
+                  className="play-btn"
+                  onClick={() => setPlaying((p) => !p)}
+                  aria-label={playing ? t('pause') : t('play')}
+                  aria-pressed={playing}
+                >
+                  {playing ? '⏸' : '▶'}
+                </button>
+                <div className="scrubber-wrap">
+                  <input
+                    className="time-scrubber"
+                    type="range"
+                    min={0}
+                    max={TIME_MAX}
+                    step={0.1}
+                    value={hoursAhead}
+                    onChange={(e) => {
+                      setPlaying(false);
+                      setHoursAhead(Number(e.target.value));
+                    }}
+                    aria-label={t('momentLabel')}
+                    aria-valuetext={timeLabel}
+                    list="time-ticks"
+                  />
+                  <datalist id="time-ticks">
+                    {TIME_TICKS.map((tick) => (
+                      <option key={tick.value} value={tick.value} />
+                    ))}
+                  </datalist>
+                  <div className="time-tick-labels" aria-hidden="true">
+                    {TIME_TICKS.map((tick) => (
+                      <button
+                        key={tick.value}
+                        type="button"
+                        className={Math.abs(tick.value - hoursAhead) < 0.5 ? 'active' : ''}
+                        onClick={() => {
+                          setPlaying(false);
+                          setHoursAhead(tick.value);
+                        }}
+                      >
+                        {tick.key ? t(tick.key) : tick.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="time-extras">
+                <div className="quick-jumps" role="group" aria-label={t('momentLabel')}>
+                  <button type="button" onClick={() => adjustHours(-1)}>−1{t('hourShort')}</button>
+                  <button type="button" onClick={() => adjustHours(1)}>+1{t('hourShort')}</button>
+                  <button type="button" onClick={() => adjustHours(3)}>+3{t('hourShort')}</button>
+                  <button type="button" onClick={() => adjustHours(8)}>+8{t('hourShort')}</button>
+                </div>
+                <div className="radius-inline" role="group" aria-label={t('radiusLabel')}>
+                  <span className="label">{t('radiusLabel')}</span>
+                  <div className="chips">
+                    {RADIUS_OPTIONS.map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        className={r === radiusKm ? 'active' : ''}
+                        onClick={() => setRadiusKm(r)}
+                        aria-pressed={r === radiusKm}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="lower-stack" aria-label={t('mapAndAlternatives')}>
+            <SunRanking places={sunnyRanking} onSelect={handleRankingSelect} />
+            {sunshineHours && userPlace && (
+              <ForecastTimeline
+                allHours={sunshineHours}
+                cityName={userPlace.cityName}
+                hoursAhead={hoursAhead}
+              />
+            )}
           </section>
         </>
       )}

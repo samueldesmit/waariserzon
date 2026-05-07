@@ -18,6 +18,12 @@ export const translations = {
     radius: 'Radius:',
     momentLabel: 'When',
     radiusLabel: 'Radius',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    inDays: 'in {n} days',
+    hourShort: 'h',
+    play: 'Play',
+    pause: 'Pause',
     settings: 'Settings',
     languageLabel: 'Language',
     useCurrentLocation: 'Use current location',
@@ -45,6 +51,14 @@ export const translations = {
     openInMaps: 'Open in maps',
     shareAdvice: 'Share',
     shareText: '{city} — {pct}% sunshine, about {distance} km away.',
+
+    // Night state
+    nightKicker: 'It\'s night',
+    nightCopy: 'The sun is below the horizon in {city}. Sunrise at {time} — in {h}h {m}m.',
+    nightCopyShort: 'The sun has set in {city}. Come back at sunrise.',
+    sunriseLabel: 'Sunrise',
+    planForSunrise: 'Plan for sunrise',
+    nightShareText: 'It\'s night in {city} — sun rises at {time}.',
 
     // Loading & error
     loading: 'Finding the sunshine...',
@@ -186,6 +200,12 @@ export const translations = {
     radius: 'Straal:',
     momentLabel: 'Moment',
     radiusLabel: 'Straal',
+    today: 'Vandaag',
+    tomorrow: 'Morgen',
+    inDays: 'over {n} dagen',
+    hourShort: 'u',
+    play: 'Afspelen',
+    pause: 'Pauze',
     settings: 'Instellingen',
     languageLabel: 'Taal',
     useCurrentLocation: 'Gebruik huidige locatie',
@@ -213,6 +233,14 @@ export const translations = {
     openInMaps: 'Open in kaart',
     shareAdvice: 'Deel advies',
     shareText: '{city} — {pct}% zon, ongeveer {distance} km verderop.',
+
+    // Night state
+    nightKicker: 'Het is nacht',
+    nightCopy: 'De zon is onder in {city}. Zonsopkomst om {time} — over {h}u {m}m.',
+    nightCopyShort: 'De zon is onder in {city}. Kom terug bij zonsopkomst.',
+    sunriseLabel: 'Zonsopkomst',
+    planForSunrise: 'Plan voor zonsopkomst',
+    nightShareText: 'Het is nacht in {city} — zon komt op om {time}.',
 
     // Loading & error
     loading: 'Zoeken naar zonneschijn...',

@@ -7,7 +7,7 @@ export default function LocationCard({ place, isUser }) {
 
   const isSunny = place.weather.condition === 'sunny' || place.weather.condition === 'partly-cloudy';
   const isNight = !place.weather.isDay;
-  const sunChance = Math.max(0, Math.min(100, 100 - place.weather.cloudCover));
+  const sunChance = Math.round(Math.max(0, Math.min(100, 100 - place.weather.cloudCover)));
 
   return (
     <div className={`location-card ${isSunny ? 'sunny' : 'not-sunny'} ${isNight ? 'night' : ''} ${isUser ? 'is-user' : ''}`}>
@@ -22,7 +22,7 @@ export default function LocationCard({ place, isUser }) {
         <span className="stat stat-sun">{t('sunChance', { pct: sunChance })}</span>
       </div>
       <div className="card-meta">
-        <span className="card-wind">{t('wind', { speed: place.weather.windSpeed })}</span>
+        <span className="card-wind">{t('wind', { speed: Math.round(place.weather.windSpeed) })}</span>
         {!isUser && place.distance > 0 && (
           <span className="card-distance">~{place.distance} km</span>
         )}
