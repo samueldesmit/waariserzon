@@ -82,6 +82,9 @@ export const translations = {
     homepageLink: 'Home',
     todayLink: 'Sun today',
     weekendLink: 'Sun this weekend',
+    aboutLink: 'About',
+    contactLink: 'Contact',
+    privacyLink: 'Privacy',
 
     // Location card
     youAreHere: 'You are here',
@@ -270,6 +273,9 @@ export const translations = {
     homepageLink: 'Home',
     todayLink: 'Zon vandaag',
     weekendLink: 'Zon dit weekend',
+    aboutLink: 'Over',
+    contactLink: 'Contact',
+    privacyLink: 'Privacy',
 
     // Location card
     youAreHere: 'Je bent hier',

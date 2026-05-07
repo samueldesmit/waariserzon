@@ -12,6 +12,10 @@ const LANDING_PAGES = [
   'zon-eindhoven',
   'zon-vandaag',
   'zon-weekend',
+  // Legal / informational pages — standalone (no React app).
+  'privacy',
+  'contact',
+  'about',
 ];
 
 export default defineConfig({

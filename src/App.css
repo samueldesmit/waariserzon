@@ -1196,6 +1196,12 @@
   text-decoration-color: var(--sun);
 }
 
+.app-footer .footer-links {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.86;
+}
+
 /* ===== Focus visibility ===== */
 .location-search input:focus-visible,
 .chips button:focus-visible,

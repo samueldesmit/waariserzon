@@ -49,20 +49,66 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6138110048651676"
-     crossorigin="anonymous"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C4ZHTNMDM"></script>
+
+    <!-- Consent Mode v2: default everything to denied; Funding Choices flips
+         the relevant flags after the visitor makes a choice. Must run before
+         any gtag('js'/'config') call. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
       gtag('js', new Date());
       gtag('config', 'G-5C4ZHTNMDM');
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C4ZHTNMDM"></script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6138110048651676" crossorigin="anonymous"></script>
+    <!-- Google Funding Choices CMP (consent banner for EEA/UK visitors) -->
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-6138110048651676?ers=1" nonce=""></script>
+    <script>(function(){function s(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;display:none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(s,0);}}}s();})();</script>
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Static prose so search engines and the AdSense crawler see real
+         content even before React mounts. The React app renders into #root
+         above; this stays visible underneath as supplementary SEO copy. -->
+    <article class="landing-prose">
+      <h1>Waar is er zon?</h1>
+      <p>Waar is er zon? is een live zonnekaart voor Nederland en Europa. De kaart hierboven laat zien waar het op dit moment helder is, hoe de bewolking de komende uren beweegt en waar binnen jouw straal de meeste zon hangt. Klik op <em>Vind zon</em> of geef je locatie op, sleep door 24 uur met de tijdbalk, en kies een dag-preset om tot 14 dagen vooruit te plannen.</p>
+
+      <h2>Hoe gebruik je de zonnekaart?</h2>
+      <ul>
+        <li><strong>Locatie kiezen</strong> — laat de browser je locatie ophalen of typ een stad in het zoekveld bovenaan.</li>
+        <li><strong>Tijd scrubben</strong> — sleep de tijdbalk om door 24 uur te bewegen, of klik <em>+1d</em>, <em>+3d</em>, <em>+7d</em>, <em>+14d</em> om naar een dag-venster te springen.</li>
+        <li><strong>Straal aanpassen</strong> — kies tussen 10 en 500 km. Een grotere straal laat zien of de zon net buiten jouw bewolkte gebied wel doorbreekt.</li>
+        <li><strong>Beste plek pakken</strong> — de antwoordkaart bovenaan toont de zonnigste locatie binnen je straal en linkt rechtstreeks naar Google Maps voor de route.</li>
+      </ul>
+
+      <h2>Steden met een eigen pagina</h2>
+      <p>Voor de grote Nederlandse steden hebben we vaste landingspagina's die direct op die locatie inzoomen, met klimaatcontext en lokale tips:</p>
+      <ul>
+        <li><a href="/zon-amsterdam">Zon in Amsterdam</a></li>
+        <li><a href="/zon-rotterdam">Zon in Rotterdam</a></li>
+        <li><a href="/zon-utrecht">Zon in Utrecht</a></li>
+        <li><a href="/zon-den-haag">Zon in Den Haag</a></li>
+        <li><a href="/zon-eindhoven">Zon in Eindhoven</a></li>
+      </ul>
+      <p>Of plan op tijd: <a href="/zon-vandaag">zon vandaag</a> · <a href="/zon-weekend">zon dit weekend</a></p>
+
+      <h2>Hoe wordt de zonkans berekend?</h2>
+      <p>De zonkans is een eenvoudige indicator die per locatie en per uur de bewolkingsgraad combineert met dag/nacht-status. Overdag is de zonkans <code>100% − totale bewolking</code>; 's nachts is hij 0% en sorteren we op helderste hemel zodat je nog steeds ziet waar de wolken het dunst zijn. De data komt van Open-Meteo (weersmodel) en OpenWeatherMap (live wolkenlaag). De voorspelling is een indicatie — voor officiële weersinformatie verwijzen we naar het KNMI.</p>
+
+      <h2>Privacy en cookies</h2>
+      <p>We respecteren je privacy. Tracking- en advertentiecookies staan standaard uit (Google Consent Mode v2) en worden alleen geactiveerd als je daar via de consent-banner toestemming voor geeft. Lees meer in ons <a href="/privacy">privacybeleid</a> of neem <a href="/contact">contact</a> op met vragen.</p>
+    </article>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

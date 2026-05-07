@@ -527,6 +527,13 @@ function App() {
             location: pinnedLocation ? (pinnedLocation.name || t('pinnedLocation')) : t('you'),
           })}
         </p>
+        <p className="footer-links">
+          <a href="/about">{t('aboutLink')}</a>
+          {' · '}
+          <a href="/contact">{t('contactLink')}</a>
+          {' · '}
+          <a href="/privacy">{t('privacyLink')}</a>
+        </p>
       </footer>
     </main>
   );
