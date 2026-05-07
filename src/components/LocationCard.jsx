@@ -7,7 +7,9 @@ export default function LocationCard({ place, isUser }) {
 
   const isSunny = place.weather.condition === 'sunny' || place.weather.condition === 'partly-cloudy';
   const isNight = !place.weather.isDay;
-  const sunChance = Math.round(Math.max(0, Math.min(100, 100 - place.weather.cloudCover)));
+  const sunChance = place.weather.isDay
+    ? Math.round(Math.max(0, Math.min(100, 100 - place.weather.cloudCover)))
+    : 0;
 
   return (
     <div className={`location-card ${isSunny ? 'sunny' : 'not-sunny'} ${isNight ? 'night' : ''} ${isUser ? 'is-user' : ''}`}>

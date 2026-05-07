@@ -10,30 +10,40 @@ import ForecastTimeline from './components/ForecastTimeline';
 import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
-const TIME_TICKS = [
+const TIME_PRESETS = [
   { value: 0, key: 'now' },
-  { value: 2, label: '+2h' },
-  { value: 4, label: '+4h' },
-  { value: 6, label: '+6h' },
+  { value: 1, label: '+1h' },
+  { value: 3, label: '+3h' },
   { value: 8, label: '+8h' },
+  { value: 24, label: '+1d' },
+  { value: 72, label: '+3d' },
+  { value: 168, label: '+7d' },
+  { value: 336, label: '+14d' },
 ];
-const TIME_MAX = 8;
+// Slider spans 24h so the user can reach tomorrow's full day directly.
+// Presets beyond this jump in multi-day steps; the slider clamps visually
+// when hoursAhead exceeds it.
+const SLIDER_MAX = 24;
+const TIME_MAX = 336;
 
-const RADIUS_OPTIONS = [30, 60, 100, 200, 500];
+const RADIUS_OPTIONS = [10, 30, 60, 100, 200, 500];
 
 function formatScrubberLabel(hoursAhead, lang, t) {
   if (hoursAhead === 0) return t('now');
+  const locale = lang === 'nl' ? 'nl-NL' : 'en-GB';
   const now = new Date();
   const target = new Date(now.getTime() + hoursAhead * 3600 * 1000);
-  const time = target.toLocaleTimeString(lang === 'nl' ? 'nl-NL' : 'en-GB', {
-    hour: '2-digit', minute: '2-digit',
-  });
+  const time = target.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   const startOfToday = new Date(now); startOfToday.setHours(0, 0, 0, 0);
   const dayDelta = Math.floor((target.getTime() - startOfToday.getTime()) / 86400000);
   if (dayDelta === 0) return `${t('today')} ${time}`;
   if (dayDelta === 1) return `${t('tomorrow')} ${time}`;
-  const weekday = target.toLocaleDateString(lang === 'nl' ? 'nl-NL' : 'en-GB', { weekday: 'short' });
-  return `${weekday} ${time}`;
+  if (dayDelta <= 6) {
+    const weekday = target.toLocaleDateString(locale, { weekday: 'short' });
+    return `${weekday} ${time}`;
+  }
+  const dateStr = target.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+  return `${dateStr} ${time}`;
 }
 
 function BrandLogo() {
@@ -67,34 +77,31 @@ function CrosshairIcon() {
 
 function App() {
   const { t, lang, setLang, strings } = useLanguage();
-  const [radiusKm, setRadiusKm] = useState(60);
+  const [radiusKm, setRadiusKm] = useState(30);
   const [hoursAhead, setHoursAhead] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const [searchValue, setSearchValue] = useState('');
   const [playing, setPlaying] = useState(false);
 
-  // Auto-advance the scrubber smoothly. 0.1h every 80ms → 6.4s full sweep,
-  // ~12fps. Combined with sub-hour interpolation in useNearbyWeather, the
-  // cloud overlay morphs continuously like a weather radar.
+  // Auto-advance the scrubber smoothly within the slider's range. 0.2h every
+  // 60ms → 7.2s full 0-24h sweep, ~16fps. Pace tuned for "watch a day pass".
   useEffect(() => {
     if (!playing) return;
     const id = setInterval(() => {
       setHoursAhead((h) => {
-        const next = +(h + 0.1).toFixed(2);
-        if (next >= TIME_MAX) {
+        // If autoplay is started while a longer preset is active, snap to 0
+        // and play through the slider window instead of trying to step 336h.
+        const start = h > SLIDER_MAX ? 0 : h;
+        const next = +(start + 0.2).toFixed(2);
+        if (next >= SLIDER_MAX) {
           setPlaying(false);
           return 0;
         }
         return next;
       });
-    }, 80);
+    }, 60);
     return () => clearInterval(id);
   }, [playing]);
-
-  const adjustHours = (delta) => {
-    setPlaying(false);
-    setHoursAhead((h) => Math.min(TIME_MAX, Math.max(0, +(h + delta).toFixed(2))));
-  };
   const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
   const activeLocation = pinnedLocation ?? location;
   const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(
@@ -156,9 +163,16 @@ function App() {
       .filter((p) => p.weather)
       .map((p) => ({
         ...p,
-        sunChance: Math.round(Math.max(0, 100 - p.weather.cloudCover)),
+        sunChance: p.weather.isDay
+          ? Math.round(Math.max(0, 100 - p.weather.cloudCover))
+          : 0,
       }));
-    const sorted = [...enriched].sort((a, b) => b.sunChance - a.sunChance);
+    // Tie-break by cloud cover so the ranking still has a meaningful order at
+    // night (clearest skies first) when every sunChance is 0.
+    const sorted = [...enriched].sort((a, b) => {
+      if (b.sunChance !== a.sunChance) return b.sunChance - a.sunChance;
+      return a.weather.cloudCover - b.weather.cloudCover;
+    });
     const best = sorted[0];
     // Ranking: dedupe by city name so we don't show the same town three times.
     const seen = new Set();
@@ -359,45 +373,33 @@ function App() {
                     className="time-scrubber"
                     type="range"
                     min={0}
-                    max={TIME_MAX}
+                    max={SLIDER_MAX}
                     step={0.1}
-                    value={hoursAhead}
+                    value={Math.min(SLIDER_MAX, hoursAhead)}
                     onChange={(e) => {
                       setPlaying(false);
                       setHoursAhead(Number(e.target.value));
                     }}
                     aria-label={t('momentLabel')}
                     aria-valuetext={timeLabel}
-                    list="time-ticks"
                   />
-                  <datalist id="time-ticks">
-                    {TIME_TICKS.map((tick) => (
-                      <option key={tick.value} value={tick.value} />
-                    ))}
-                  </datalist>
-                  <div className="time-tick-labels" aria-hidden="true">
-                    {TIME_TICKS.map((tick) => (
-                      <button
-                        key={tick.value}
-                        type="button"
-                        className={Math.abs(tick.value - hoursAhead) < 0.5 ? 'active' : ''}
-                        onClick={() => {
-                          setPlaying(false);
-                          setHoursAhead(tick.value);
-                        }}
-                      >
-                        {tick.key ? t(tick.key) : tick.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
               <div className="time-extras">
-                <div className="quick-jumps" role="group" aria-label={t('momentLabel')}>
-                  <button type="button" onClick={() => adjustHours(-1)}>−1{t('hourShort')}</button>
-                  <button type="button" onClick={() => adjustHours(1)}>+1{t('hourShort')}</button>
-                  <button type="button" onClick={() => adjustHours(3)}>+3{t('hourShort')}</button>
-                  <button type="button" onClick={() => adjustHours(8)}>+8{t('hourShort')}</button>
+                <div className="time-presets" role="group" aria-label={t('momentLabel')}>
+                  {TIME_PRESETS.map((p) => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      className={Math.abs(p.value - hoursAhead) < 0.5 ? 'active' : ''}
+                      onClick={() => {
+                        setPlaying(false);
+                        setHoursAhead(p.value);
+                      }}
+                    >
+                      {p.key ? t(p.key) : p.label}
+                    </button>
+                  ))}
                 </div>
                 <div className="radius-inline" role="group" aria-label={t('radiusLabel')}>
                   <span className="label">{t('radiusLabel')}</span>

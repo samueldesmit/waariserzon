@@ -5,7 +5,9 @@ export default function BestDestinationCard({ best, fromLocation, isNight }) {
 
   if (!best || !best.weather) return null;
 
-  const sunChance = Math.round(Math.max(0, Math.min(100, 100 - best.weather.cloudCover)));
+  const sunChance = best.weather.isDay
+    ? Math.round(Math.max(0, Math.min(100, 100 - best.weather.cloudCover)))
+    : 0;
   const cityName = best.cityName || `${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}°`;
 
   const directionsUrl = fromLocation

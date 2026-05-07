@@ -14,7 +14,9 @@ export default function SunRanking({ places, onSelect }) {
       ) : (
         <ol>
           {places.map((p, i) => {
-            const sunChance = Math.round(Math.max(0, Math.min(100, 100 - p.weather.cloudCover)));
+            const sunChance = p.weather.isDay
+              ? Math.round(Math.max(0, Math.min(100, 100 - p.weather.cloudCover)))
+              : 0;
             const cityName = p.cityName || `${p.lat.toFixed(2)}°, ${p.lon.toFixed(2)}°`;
             return (
               <li

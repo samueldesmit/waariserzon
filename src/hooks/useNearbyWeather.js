@@ -90,6 +90,27 @@ function interpretWeatherCode(code, isDay, strings) {
   return { condition: 'unknown', icon: '❓', description: strings.unknown };
 }
 
+function formatLocalDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Minute-precise day/night check using sunrise/sunset for the target's date.
+// Returns null if the daily window can't tell — caller should fall back to
+// the hourly is_day flag.
+function isDayAtMinute(targetDate, daily) {
+  if (!daily?.time || !daily.sunrise || !daily.sunset) return null;
+  const localDateStr = formatLocalDate(targetDate);
+  const idx = daily.time.indexOf(localDateStr);
+  if (idx === -1) return null;
+  const sunrise = new Date(daily.sunrise[idx]).getTime();
+  const sunset = new Date(daily.sunset[idx]).getTime();
+  const t = targetDate.getTime();
+  return t >= sunrise && t < sunset;
+}
+
 function findHourPair(times, targetDate) {
   const targetMs = targetDate.getTime();
   let lower = 0;
@@ -140,8 +161,12 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
       const generated = generateNearbyPoints(location.lat, location.lon, radiusKm, strings);
       const lats = generated.map((p) => p.lat.toFixed(4)).join(',');
       const lons = generated.map((p) => p.lon.toFixed(4)).join(',');
+      // forecast_days=15 covers the full 14-day preset (336h) with a buffer
+      // hour for boundary interpolation. Free-tier max is 16.
+      // daily sunrise/sunset gives minute-precision day/night so we don't
+      // mis-flag the hour straddling sunset (e.g. 21:19 with sunset at 21:08).
       const params =
-        'hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&forecast_days=4';
+        'hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=15';
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;
 
       fetch(url, { signal: controller.signal })
@@ -167,7 +192,12 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
               isDay: r.hourly.is_day,
             };
           });
-          setSnapshot({ points, hourly });
+          const daily = results.map((r) =>
+            r?.daily?.time
+              ? { time: r.daily.time, sunrise: r.daily.sunrise, sunset: r.daily.sunset }
+              : null,
+          );
+          setSnapshot({ points, hourly, daily });
           setInitialLoading(false);
           setRefreshing(false);
           setError(null);
@@ -195,12 +225,14 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
     const targetDate = new Date(Date.now() + hoursAhead * 3600 * 1000);
     return snapshot.points.map((point, i) => {
       const h = snapshot.hourly[i];
+      const d = snapshot.daily?.[i];
       if (!h) return { ...point, weather: null };
       const { lower, upper, frac } = findHourPair(h.time, targetDate);
       // Discrete attributes (day/night, weather code) snap to nearest hour so
       // the marker emoji doesn't flicker while interpolating.
       const snapIdx = frac < 0.5 ? lower : upper;
-      const isDay = h.isDay[snapIdx] === 1;
+      const minuteDay = isDayAtMinute(targetDate, d);
+      const isDay = minuteDay !== null ? minuteDay : h.isDay[snapIdx] === 1;
       const weatherCode = h.weatherCode[snapIdx];
       const weather = interpretWeatherCode(weatherCode, isDay, strings);
       return {

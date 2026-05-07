@@ -11,8 +11,8 @@ export function useSunshineHourly(location, hoursAhead = 0) {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    // Fetch enough days to cover the full window
-    const forecastDays = Math.min(7, Math.ceil((hoursAhead + 24) / 24) + 1);
+    // Fetch enough days to cover the full window (max preset is 14d → 336h)
+    const forecastDays = Math.min(15, Math.ceil((hoursAhead + 24) / 24) + 1);
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat.toFixed(4)}&longitude=${location.lon.toFixed(4)}&hourly=cloud_cover,is_day&forecast_days=${forecastDays}&timezone=auto`;
 
     fetch(url, { signal: controller.signal })
