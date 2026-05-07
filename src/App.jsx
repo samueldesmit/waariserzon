@@ -10,21 +10,34 @@ import ForecastTimeline from './components/ForecastTimeline';
 import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 
+// Each preset opens a 24-hour scrub window starting at that offset from now.
 const TIME_PRESETS = [
   { value: 0, key: 'now' },
-  { value: 1, label: '+1h' },
-  { value: 3, label: '+3h' },
-  { value: 8, label: '+8h' },
   { value: 24, label: '+1d' },
   { value: 72, label: '+3d' },
   { value: 168, label: '+7d' },
   { value: 336, label: '+14d' },
 ];
-// Slider spans 24h so the user can reach tomorrow's full day directly.
-// Presets beyond this jump in multi-day steps; the slider clamps visually
-// when hoursAhead exceeds it.
 const SLIDER_MAX = 24;
-const TIME_MAX = 336;
+const TIME_MAX = 360; // last preset (+14d = 336h) plus the 24h slider window
+
+// SEO landing pages auto-pin the map to the city in the URL so visitors
+// landing on /zon-amsterdam see Amsterdam without needing to share location.
+const CITY_LANDINGS = {
+  'zon-amsterdam': { lat: 52.3676, lon: 4.9041, name: 'Amsterdam', cityName: 'Amsterdam' },
+  'zon-rotterdam': { lat: 51.9225, lon: 4.4792, name: 'Rotterdam', cityName: 'Rotterdam' },
+  'zon-utrecht': { lat: 52.0907, lon: 5.1214, name: 'Utrecht', cityName: 'Utrecht' },
+  'zon-den-haag': { lat: 52.0705, lon: 4.3007, name: 'Den Haag', cityName: 'Den Haag' },
+  'zon-eindhoven': { lat: 51.4416, lon: 5.4697, name: 'Eindhoven', cityName: 'Eindhoven' },
+};
+
+const CITY_NAV = [
+  { slug: 'zon-amsterdam', label: 'Amsterdam' },
+  { slug: 'zon-rotterdam', label: 'Rotterdam' },
+  { slug: 'zon-utrecht', label: 'Utrecht' },
+  { slug: 'zon-den-haag', label: 'Den Haag' },
+  { slug: 'zon-eindhoven', label: 'Eindhoven' },
+];
 
 const RADIUS_OPTIONS = [10, 30, 60, 100, 200, 500];
 
@@ -79,42 +92,76 @@ function App() {
   const { t, lang, setLang, strings } = useLanguage();
   const [radiusKm, setRadiusKm] = useState(30);
   const [hoursAhead, setHoursAhead] = useState(0);
+  // presetBase = the start of the current 24h scrub window (Now = 0, +1d = 24,
+  // +7d = 168, etc.). The slider scrubs hoursAhead from presetBase to
+  // presetBase + 24.
+  const [presetBase, setPresetBase] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const [searchValue, setSearchValue] = useState('');
   const [playing, setPlaying] = useState(false);
 
-  // Auto-advance the scrubber smoothly within the slider's range. 0.2h every
-  // 60ms → 7.2s full 0-24h sweep, ~16fps. Pace tuned for "watch a day pass".
+  const sliderValue = Math.max(0, Math.min(SLIDER_MAX, hoursAhead - presetBase));
+
+  const handlePresetClick = (preset) => {
+    setPlaying(false);
+    setPresetBase(preset.value);
+    setHoursAhead(preset.value);
+  };
+
+  const handleSliderChange = (offset) => {
+    setPlaying(false);
+    setHoursAhead(presetBase + offset);
+  };
+
+  // Auto-advance the scrubber across the current 24-hour window. 0.2h every
+  // 60ms → 7.2s full sweep, ~16fps.
   useEffect(() => {
     if (!playing) return;
     const id = setInterval(() => {
       setHoursAhead((h) => {
-        // If autoplay is started while a longer preset is active, snap to 0
-        // and play through the slider window instead of trying to step 336h.
-        const start = h > SLIDER_MAX ? 0 : h;
-        const next = +(start + 0.2).toFixed(2);
+        const offset = h - presetBase;
+        const next = +(offset + 0.2).toFixed(2);
         if (next >= SLIDER_MAX) {
           setPlaying(false);
-          return 0;
+          return presetBase;
         }
-        return next;
+        return presetBase + next;
       });
     }, 60);
     return () => clearInterval(id);
-  }, [playing]);
+  }, [playing, presetBase]);
   const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
   const activeLocation = pinnedLocation ?? location;
+  // Only fetch as many days as the current preset window actually needs.
+  // Default sessions stay near "Now" (4 days covers Now + slider + +1d/+3d);
+  // we bump up when the user jumps to +7d or +14d.
+  const forecastDays = Math.min(
+    16,
+    Math.max(4, Math.ceil((presetBase + SLIDER_MAX + 4) / 24)),
+  );
   const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(
     activeLocation,
     radiusKm,
     hoursAhead,
     lang,
+    forecastDays,
   );
   const { hours: sunshineHours } = useSunshineHourly(activeLocation, hoursAhead);
 
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  // Auto-pin from city landing URL (e.g. /zon-amsterdam) so the map renders
+  // centered on that city without prompting for geolocation.
+  useEffect(() => {
+    const slug = window.location.pathname
+      .replace(/^\/+/, '')
+      .replace(/\.html$/, '')
+      .replace(/\/$/, '');
+    const city = CITY_LANDINGS[slug];
+    if (city) setPinnedLocation(city);
+  }, []);
 
   const userPlace = places.find((p) => p.short === 'Here');
   const isNight = !!(userPlace && userPlace.weather && !userPlace.weather.isDay);
@@ -144,7 +191,14 @@ function App() {
   }, [isNight, sunshineHours]);
 
   const handleSkipToSunrise = (hours) => {
-    setHoursAhead(Math.min(TIME_MAX, Math.max(1, Math.ceil(hours))));
+    const target = Math.min(TIME_MAX, Math.max(1, Math.ceil(hours)));
+    // Snap to the largest preset day-window that contains this target hour.
+    const base = TIME_PRESETS.reduce(
+      (max, p) => (p.value <= target && p.value > max ? p.value : max),
+      0,
+    );
+    setPresetBase(base);
+    setHoursAhead(target);
   };
 
   // Sync search field with active city when it changes (unless user is typing)
@@ -375,11 +429,8 @@ function App() {
                     min={0}
                     max={SLIDER_MAX}
                     step={0.1}
-                    value={Math.min(SLIDER_MAX, hoursAhead)}
-                    onChange={(e) => {
-                      setPlaying(false);
-                      setHoursAhead(Number(e.target.value));
-                    }}
+                    value={sliderValue}
+                    onChange={(e) => handleSliderChange(Number(e.target.value))}
                     aria-label={t('momentLabel')}
                     aria-valuetext={timeLabel}
                   />
@@ -391,11 +442,8 @@ function App() {
                     <button
                       key={p.value}
                       type="button"
-                      className={Math.abs(p.value - hoursAhead) < 0.5 ? 'active' : ''}
-                      onClick={() => {
-                        setPlaying(false);
-                        setHoursAhead(p.value);
-                      }}
+                      className={presetBase === p.value ? 'active' : ''}
+                      onClick={() => handlePresetClick(p)}
                     >
                       {p.key ? t(p.key) : p.label}
                     </button>
@@ -456,6 +504,18 @@ function App() {
           </details>
         ))}
       </section>
+
+      <nav className="city-nav" aria-label={t('citiesNavLabel')}>
+        <strong>{t('citiesNavLabel')}</strong>
+        <ul>
+          <li><a href="/">{t('homepageLink')}</a></li>
+          {CITY_NAV.map((c) => (
+            <li key={c.slug}><a href={`/${c.slug}`}>{c.label}</a></li>
+          ))}
+          <li><a href="/zon-vandaag">{t('todayLink')}</a></li>
+          <li><a href="/zon-weekend">{t('weekendLink')}</a></li>
+        </ul>
+      </nav>
 
       <footer className="app-footer">
         <p>

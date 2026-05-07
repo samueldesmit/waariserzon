@@ -77,6 +77,12 @@ export const translations = {
     pinnedLocation: 'pinned location',
     you: 'you',
 
+    // Internal nav (SEO landing pages)
+    citiesNavLabel: 'Sun by city',
+    homepageLink: 'Home',
+    todayLink: 'Sun today',
+    weekendLink: 'Sun this weekend',
+
     // Location card
     youAreHere: 'You are here',
     sunChance: '{pct}% sun',
@@ -143,13 +149,13 @@ export const translations = {
 
     // SEO intro text
     seoHeading: 'Find sunshine near you — in real time',
-    seoText: 'Follow the Sun shows you exactly where the sun is shining right now. Using live weather data, we scan dozens of locations around you and display the sunshine chance for every nearby city. Planning a day trip, bike ride, or beach visit? Check the map, adjust the radius up to 500 km, and look ahead up to 3 days to find the best weather window.',
+    seoText: 'Waar is er zon? shows you exactly where the sun is shining right now. Live weather data is sampled at dozens of points around you so you can see at a glance which direction is clearest. Planning a day trip, bike ride, or terrace visit? Check the map, set the radius from 10 km up to 500 km, and scrub the timeline to look up to 14 days ahead.',
     seoHeading2: 'How does the sunshine map work?',
-    seoText2: 'The moment you share your location — or pick a spot on the map — Follow the Sun fetches real-time weather data for dozens of points in every direction around you. For each point we calculate the sunshine chance based on cloud cover. Fewer clouds means a higher chance of sun. Results appear instantly on the interactive map and as clear cards per city, including temperature, wind speed, and an hourly sunshine graph.',
-    seoHeading3: 'When should you use Follow the Sun?',
-    seoText3: 'Whether you want to know if it\'s worth driving to the beach, or you\'re looking for a sunny spot for a walk or an afternoon on the terrace — this tool helps you pick the best option. Set the radius from 10 to 500 kilometres and check the weather up to 3 days ahead. That way you know not only where the sun is shining now, but also where the weather will be nice tomorrow or the day after. Perfect for day trips across the Netherlands, Belgium, or Germany.',
-    seoHeading4: 'Free, no account, no ads',
-    seoText4: 'Follow the Sun is completely free and works without signing up. We don\'t store your location and we don\'t use tracking cookies. Weather data comes from Open-Meteo, an open-source weather API, and city names from the GeoNames database. The site works on phone, tablet, and desktop and is available in Dutch and English.',
+    seoText2: 'When you share your location — or click a spot on the map — Waar is er zon? fetches hourly forecast data for dozens of points around you. Each point\'s sunshine chance is derived from cloud cover; fewer clouds means a higher chance of sun. The map combines a live cloud-coverage layer with a 24-hour scrub slider, so you can morph the overlay through the day to see when sun breaks through.',
+    seoHeading3: 'When should you use Waar is er zon?',
+    seoText3: 'Whether you want to know if it\'s worth driving to the coast, or you\'re looking for a sunny spot for a walk or an afternoon on the terrace — this tool helps you pick the best option. Set the radius from 10 to 500 kilometres and look up to 14 days ahead with day-window presets. That way you know not only where the sun is shining now, but also where the weather will be nice tomorrow, this weekend, or next week. Works across the Netherlands, Belgium, Germany, and the rest of Europe.',
+    seoHeading4: 'Free to use, no account required',
+    seoText4: 'Waar is er zon? is completely free and works without signing up. Your location stays in your browser and is only sent to our weather provider to fetch forecasts. The site shows ads (Google AdSense) and uses Google Analytics, both of which set cookies — see your browser\'s cookie controls to manage these. Weather data is from Open-Meteo, cloud-coverage tiles from OpenWeatherMap, and city names from GeoNames. Works on phone, tablet, and desktop in Dutch and English.',
 
     // FAQ
     faqTitle: 'Frequently Asked Questions',
@@ -168,7 +174,7 @@ export const translations = {
       },
       {
         q: 'Can I look ahead in time?',
-        a: 'Yes! Use the time slider to look up to 3 days (72 hours) into the future. This is perfect for planning a weekend trip or finding the best time to go outside.'
+        a: 'Yes. The 24-hour time scrubber covers a full day at any zoom level, and the day-window presets jump up to 14 days ahead. Combined, you can plan anything from this afternoon to two weeks from now. Note that forecasts beyond about 5 days are an indication rather than a precise prediction.'
       },
       {
         q: 'Does it work outside the Netherlands?',
@@ -259,6 +265,12 @@ export const translations = {
     pinnedLocation: 'vastgezette locatie',
     you: 'jou',
 
+    // Internal nav (SEO landing pages)
+    citiesNavLabel: 'Zon per stad',
+    homepageLink: 'Home',
+    todayLink: 'Zon vandaag',
+    weekendLink: 'Zon dit weekend',
+
     // Location card
     youAreHere: 'Je bent hier',
     sunChance: '{pct}% zon',
@@ -325,13 +337,13 @@ export const translations = {
 
     // SEO intro text
     seoHeading: 'Vind zonneschijn bij jou in de buurt — in real-time',
-    seoText: 'Waar is er zon? laat je precies zien waar de zon nu schijnt. Met live weerdata scannen we tientallen locaties rondom jou en tonen de zonkans per stad. Ben je een dagje uit, fietstocht of strandbezoek aan het plannen? Bekijk de kaart, stel de straal in tot 500 km en kijk tot 3 dagen vooruit om het beste weermoment te vinden.',
+    seoText: 'Waar is er zon? laat je precies zien waar de zon nu schijnt. Met live weerdata bemonsteren we tientallen punten rondom jou zodat je in één oogopslag ziet welke kant het helderst is. Ben je een dagje uit, fietstocht of terrasbezoek aan het plannen? Bekijk de kaart, stel de straal in van 10 km tot 500 km, en sleep de tijdbalk om tot 14 dagen vooruit te kijken.',
     seoHeading2: 'Hoe werkt de zonnekaart?',
-    seoText2: 'Op het moment dat je je locatie deelt — of een plek op de kaart kiest — haalt Waar is er zon? actuele weerdata op voor tientallen punten in alle richtingen om je heen. Per punt berekenen we de zonkans op basis van de bewolkingsgraad. Hoe minder wolken, hoe hoger de zonkans. De resultaten zie je direct terug op de interactieve kaart en als overzichtelijke kaarten per stad, compleet met temperatuur, windsnelheid en een zonnegrafiek die het verloop van de zon per uur laat zien.',
+    seoText2: 'Op het moment dat je je locatie deelt — of een plek op de kaart kiest — haalt Waar is er zon? uurlijkse voorspellingsdata op voor tientallen punten in alle richtingen om je heen. Per punt berekenen we de zonkans op basis van de bewolkingsgraad: hoe minder wolken, hoe hoger de kans op zon. De kaart combineert een live wolkenlaag met een 24-uurs schuif waarmee je de bewolking door de dag heen kunt scrubben en kunt zien wanneer de zon doorbreekt.',
     seoHeading3: 'Wanneer gebruik je Waar is er zon?',
-    seoText3: 'Of je nu wilt weten of het de moeite waard is om naar het strand te rijden, of je zoekt een zonnige plek voor een wandeling of terrasje — deze tool helpt je om de beste keuze te maken. Stel de straal in van 10 tot 500 kilometer en bekijk het weer tot 3 dagen vooruit. Zo weet je niet alleen waar de zon nu schijnt, maar ook waar het morgen of overmorgen mooi weer wordt. Ideaal voor dagjes uit in Nederland, België of Duitsland.',
-    seoHeading4: 'Gratis, zonder account, zonder advertenties',
-    seoText4: 'Waar is er zon? is volledig gratis en werkt zonder registratie. We slaan je locatie niet op en plaatsen geen tracking cookies. De weerdata komt van Open-Meteo, een open-source weer-API, en de plaatsnamen uit de GeoNames-database. De site werkt op telefoon, tablet en desktop en is beschikbaar in het Nederlands en Engels.',
+    seoText3: 'Of je nu wilt weten of het de moeite waard is om naar de kust te rijden, of je zoekt een zonnig plekje voor een wandeling of terrasje — deze tool helpt je om de beste keuze te maken. Stel de straal in van 10 tot 500 kilometer en kijk tot 14 dagen vooruit met dag-presets. Zo weet je niet alleen waar de zon nu schijnt, maar ook waar het morgen, dit weekend of volgende week mooi weer wordt. Werkt in heel Nederland, België, Duitsland en de rest van Europa.',
+    seoHeading4: 'Gratis te gebruiken, zonder account',
+    seoText4: 'Waar is er zon? is volledig gratis en werkt zonder registratie. Je locatie blijft in je browser en wordt alleen naar onze weerprovider gestuurd om de voorspelling op te halen. De site toont advertenties (Google AdSense) en gebruikt Google Analytics; beide plaatsen cookies — beheer deze via je browser-instellingen. Weerdata komt van Open-Meteo, wolkentegels van OpenWeatherMap en plaatsnamen uit GeoNames. Werkt op telefoon, tablet en desktop in het Nederlands en Engels.',
 
     // FAQ
     faqTitle: 'Veelgestelde vragen',
@@ -350,7 +362,7 @@ export const translations = {
       },
       {
         q: 'Kan ik vooruit in de tijd kijken?',
-        a: 'Ja! Gebruik de tijdschuif om tot 3 dagen (72 uur) vooruit te kijken. Ideaal om een weekenduitje te plannen of het beste moment te vinden om naar buiten te gaan.'
+        a: 'Ja. De 24-uurs tijdschuif laat je een volledige dag scrubben, en de dag-presets springen tot 14 dagen vooruit. Daarmee plan je alles van vanmiddag tot twee weken vooruit. Voorspellingen voorbij ongeveer 5 dagen zijn meer een indicatie dan een nauwkeurige voorspelling.'
       },
       {
         q: 'Werkt het ook buiten Nederland?',

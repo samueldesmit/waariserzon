@@ -9,8 +9,33 @@ const DIRECTION_KEYS = [
 ];
 
 function pointCountForRadius(radiusKm) {
-  const n = Math.round(15 + Math.sqrt(radiusKm) * 7);
-  return Math.max(30, Math.min(120, n));
+  const n = Math.round(15 + Math.sqrt(radiusKm) * 6);
+  return Math.max(24, Math.min(80, n));
+}
+
+// Per-browser snapshot cache. Keyed by (lat, lon, radius, forecastDays, lang)
+// rounded to 3 decimal places so tiny coordinate jitter still hits the cache.
+const CACHE_TTL_MS = 10 * 60 * 1000;
+function cacheKey(loc, radiusKm, forecastDays, lang) {
+  return `wnw:${loc.lat.toFixed(3)},${loc.lon.toFixed(3)}-${radiusKm}-${forecastDays}-${lang}`;
+}
+function readCache(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || Date.now() - parsed.ts > CACHE_TTL_MS) return null;
+    return parsed.snapshot;
+  } catch {
+    return null;
+  }
+}
+function writeCache(key, snapshot) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ snapshot, ts: Date.now() }));
+  } catch {
+    /* quota exceeded — drop the oldest entries silently */
+  }
 }
 
 function bearingToDirectionKey(dLat, dLon) {
@@ -130,7 +155,13 @@ function findHourPair(times, targetDate) {
 
 const lerp = (a, b, f) => a * (1 - f) + b * f;
 
-export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang = 'en') {
+export function useNearbyWeather(
+  location,
+  radiusKm = 60,
+  hoursAhead = 0,
+  lang = 'en',
+  forecastDays = 4,
+) {
   // Prefetched data: stable across hoursAhead changes so scrubbing is instant
   const [snapshot, setSnapshot] = useState(null);
   // snapshot: { points, hourly: [{ time, weatherCode, temperature, cloudCover, windSpeed, isDay }] }
@@ -142,13 +173,25 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
 
   const strings = translations[lang] || translations.en;
 
-  // Fetch hourly forecast for the full 0–72h+ window. Only refetches when the
-  // map area or language actually change — NOT when the user scrubs time.
+  // Fetch hourly forecast. Only refetches when the map area, language, or
+  // forecast window changes — NOT when the user scrubs time. Caches per
+  // (lat, lon, radius, forecastDays, lang) in localStorage with a 10-minute
+  // TTL to keep the API call rate well under Open-Meteo's free-tier limits.
   useEffect(() => {
     if (!location) return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (abortRef.current) abortRef.current.abort();
+
+    const key = cacheKey(location, radiusKm, forecastDays, lang);
+    const cached = readCache(key);
+    if (cached) {
+      setSnapshot(cached);
+      setInitialLoading(false);
+      setRefreshing(false);
+      setError(null);
+      return;
+    }
 
     const isFirst = !snapshot;
     if (!isFirst) setRefreshing(true);
@@ -161,12 +204,12 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
       const generated = generateNearbyPoints(location.lat, location.lon, radiusKm, strings);
       const lats = generated.map((p) => p.lat.toFixed(4)).join(',');
       const lons = generated.map((p) => p.lon.toFixed(4)).join(',');
-      // forecast_days=15 covers the full 14-day preset (336h) with a buffer
-      // hour for boundary interpolation. Free-tier max is 16.
-      // daily sunrise/sunset gives minute-precision day/night so we don't
-      // mis-flag the hour straddling sunset (e.g. 21:19 with sunset at 21:08).
+      // forecastDays scales with the user's selected preset window — most
+      // sessions only need 4 days; we bump it when the user explicitly
+      // jumps to +7d or +14d. daily sunrise/sunset gives minute-precision
+      // day/night.
       const params =
-        'hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=15';
+        `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=${forecastDays}`;
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;
 
       fetch(url, { signal: controller.signal })
@@ -197,7 +240,9 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
               ? { time: r.daily.time, sunrise: r.daily.sunrise, sunset: r.daily.sunset }
               : null,
           );
-          setSnapshot({ points, hourly, daily });
+          const next = { points, hourly, daily };
+          setSnapshot(next);
+          writeCache(key, next);
           setInitialLoading(false);
           setRefreshing(false);
           setError(null);
@@ -215,7 +260,7 @@ export function useNearbyWeather(location, radiusKm = 60, hoursAhead = 0, lang =
     };
     // strings is a stable reference per lang; depending on lang directly
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location?.lat, location?.lon, radiusKm, lang]);
+  }, [location?.lat, location?.lon, radiusKm, lang, forecastDays]);
 
   // Slice the cached forecast at the user's chosen hour. Pure client-side, and
   // interpolates between adjacent hours so the cloud overlay morphs smoothly
