@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { translations, t } from '../i18n/translations';
 import CITIES from '../data/cities';
+import { fetchOpenMeteo, bucketForecastDays } from '../lib/openMeteo';
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
 const DIRECTION_KEYS = [
@@ -162,6 +163,10 @@ export function useNearbyWeather(
   lang = 'en',
   forecastDays = 4,
 ) {
+  // Bucket the requested forecast window so small changes (e.g. preset jumps)
+  // reuse the cached snapshot instead of refetching ~50 locations worth of
+  // data from Open-Meteo.
+  const days = bucketForecastDays(forecastDays);
   // Prefetched data: stable across hoursAhead changes so scrubbing is instant
   const [snapshot, setSnapshot] = useState(null);
   // snapshot: { points, hourly: [{ time, weatherCode, temperature, cloudCover, windSpeed, isDay }] }
@@ -183,7 +188,7 @@ export function useNearbyWeather(
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (abortRef.current) abortRef.current.abort();
 
-    const key = cacheKey(location, radiusKm, forecastDays, lang);
+    const key = cacheKey(location, radiusKm, days, lang);
     const cached = readCache(key);
     if (cached) {
       setSnapshot(cached);
@@ -209,14 +214,10 @@ export function useNearbyWeather(
       // jumps to +7d or +14d. daily sunrise/sunset gives minute-precision
       // day/night.
       const params =
-        `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=${forecastDays}`;
+        `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=${days}`;
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;
 
-      fetch(url, { signal: controller.signal })
-        .then((res) => {
-          if (!res.ok) throw new Error('Weather API request failed');
-          return res.json();
-        })
+      fetchOpenMeteo(url, { signal: controller.signal })
         .then((data) => {
           const results = Array.isArray(data) ? data : [data];
           const points = generated.map((p) => ({
@@ -260,7 +261,7 @@ export function useNearbyWeather(
     };
     // strings is a stable reference per lang; depending on lang directly
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location?.lat, location?.lon, radiusKm, lang, forecastDays]);
+  }, [location?.lat, location?.lon, radiusKm, lang, days]);
 
   // Slice the cached forecast at the user's chosen hour. Pure client-side, and
   // interpolates between adjacent hours so the cloud overlay morphs smoothly
