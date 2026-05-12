@@ -198,6 +198,10 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
 
     map.on('click', (e) => {
       if (!onPinLocationRef.current) return;
+      // Marker/popup clicks bubble up here too — skip those so clicking an
+      // icon just shows its popup instead of dropping a new pin.
+      const target = e.originalEvent?.target;
+      if (target?.closest?.('.maplibregl-marker, .maplibregl-popup')) return;
       const { lng, lat } = e.lngLat;
       // Pin without a name — App-level reverse geocoding will fill in the
       // actual woonplaats (avoids findNearestCity's bundled-CITIES fallback
