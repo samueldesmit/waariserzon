@@ -1,24 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useLanguage } from '../i18n/LanguageContext';
-import CITIES from '../data/cities';
 import { brandMapStyle } from './mapStyle';
-
-function findNearestCity(lat, lon) {
-  let bestName = null;
-  let bestDist = Infinity;
-  for (let i = 0; i < CITIES.length; i++) {
-    const dLat = CITIES[i][0] - lat;
-    const dLon = CITIES[i][1] - lon;
-    const dist = dLat * dLat + dLon * dLon;
-    if (dist < bestDist) {
-      bestDist = dist;
-      bestName = CITIES[i][2];
-    }
-  }
-  return bestName;
-}
+import { reverseGeocode } from '../lib/geocoder';
 
 function cloudPointsGeoJSON(places) {
   return {
@@ -51,6 +36,36 @@ function weatherMarkerHTML(emoji, isSunny, isNight) {
 const USER_MARKER_HTML = `<div class="marker-bubble marker-user">📍</div>`;
 const PIN_MARKER_HTML = `<div class="marker-bubble marker-pin">📌</div>`;
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const toRad = (v) => (v * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Thin the icon set so the map stays readable. The cloud overlay still uses
+// every data point — only the bubble markers get thinned. Greedy by min
+// separation in km, anchored on user + pin so nothing crowds them.
+function thinMarkers(places, radiusKm, anchors) {
+  const minKm = Math.max(5, radiusKm / 2.5);
+  const kept = [];
+  const occupied = anchors.slice();
+  for (const place of places) {
+    if (place.short === 'Here' || !place.weather) continue;
+    const tooClose = occupied.some(
+      (a) => haversineKm(a.lat, a.lon, place.lat, place.lon) < minKm,
+    );
+    if (tooClose) continue;
+    kept.push(place);
+    occupied.push({ lat: place.lat, lon: place.lon });
+  }
+  return kept;
+}
+
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -59,14 +74,38 @@ function escapeHtml(s) {
 
 const OWM_KEY = import.meta.env.VITE_OPENWEATHERMAP_KEY;
 
+function coordKey(lat, lon) {
+  return `${lat.toFixed(4)},${lon.toFixed(4)}`;
+}
+
 export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPinLocation, hoursAhead = 0 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef(new Map()); // short -> { marker, element, lastHtml, lastPopup }
   const styleLoadedRef = useRef(false);
   const onPinLocationRef = useRef(onPinLocation);
   const fittedOnceRef = useRef(false);
+  // Resolved real woonplaats names for marker coords. CITIES (the bundled
+  // fallback) only contains pop ≥10k towns, so small villages get mislabeled
+  // — when a popup opens we reverse-geocode the actual place and patch the
+  // title. Keyed by rounded lat,lon so the override survives panning/scrubbing.
+  const [nameOverrides, setNameOverrides] = useState({});
+  const pendingLookupsRef = useRef(new Set());
+  const langRef = useRef(lang);
+  useEffect(() => { langRef.current = lang; }, [lang]);
+
+  const resolveName = (lat, lon) => {
+    const key = coordKey(lat, lon);
+    if (pendingLookupsRef.current.has(key) || nameOverrides[key]) return;
+    pendingLookupsRef.current.add(key);
+    reverseGeocode(lat, lon, { lang: langRef.current })
+      .then((name) => {
+        if (name) setNameOverrides((prev) => (prev[key] === name ? prev : { ...prev, [key]: name }));
+      })
+      .catch(() => {})
+      .finally(() => pendingLookupsRef.current.delete(key));
+  };
 
   useEffect(() => {
     onPinLocationRef.current = onPinLocation;
@@ -160,8 +199,10 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
     map.on('click', (e) => {
       if (!onPinLocationRef.current) return;
       const { lng, lat } = e.lngLat;
-      const cityName = findNearestCity(lat, lng);
-      onPinLocationRef.current({ lat, lon: lng, name: cityName, cityName });
+      // Pin without a name — App-level reverse geocoding will fill in the
+      // actual woonplaats (avoids findNearestCity's bundled-CITIES fallback
+      // which mislabels smaller towns).
+      onPinLocationRef.current({ lat, lon: lng });
     });
 
     mapRef.current = map;
@@ -196,10 +237,18 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
         }
       } else {
         const element = makeMarkerEl(html);
+        const popup = new maplibregl.Popup({ offset: 24, closeButton: false }).setHTML(popupHtml);
         const marker = new maplibregl.Marker({ element, anchor: 'center' })
           .setLngLat([lng, lat])
-          .setPopup(new maplibregl.Popup({ offset: 24, closeButton: false }).setHTML(popupHtml))
+          .setPopup(popup)
           .addTo(map);
+        // Lazy lookup so we don't fire ~12 reverse-geocodes upfront — only when
+        // the user actually opens the popup. resolveName dedupes + caches.
+        popup.on('open', () => {
+          if (key === 'Here' || key === '__pin__') return;
+          const ll = marker.getLngLat();
+          resolveName(ll.lat, ll.lng);
+        });
         markersRef.current.set(key, { marker, element, lastHtml: html, lastPopup: popupHtml });
       }
     };
@@ -218,13 +267,17 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
       upsert('__pin__', pinnedLocation.lon, pinnedLocation.lat, PIN_MARKER_HTML, popupHtml);
     }
 
-    for (const place of places) {
-      if (place.short === 'Here' || !place.weather) continue;
+    const anchors = [];
+    if (userPlace) anchors.push({ lat: userPlace.lat, lon: userPlace.lon });
+    if (pinnedLocation) anchors.push({ lat: pinnedLocation.lat, lon: pinnedLocation.lon });
+    const visibleMarkers = thinMarkers(places, radiusKm, anchors);
+    for (const place of visibleMarkers) {
       const isSunny =
         place.weather.condition === 'sunny' || place.weather.condition === 'partly-cloudy';
       const isNight = !place.weather.isDay;
       const html = weatherMarkerHTML(place.weather.icon, isSunny, isNight);
-      const title = place.cityName || `${place.lat.toFixed(2)}°, ${place.lon.toFixed(2)}°`;
+      const resolved = nameOverrides[coordKey(place.lat, place.lon)];
+      const title = resolved || place.cityName || `${place.lat.toFixed(2)}°, ${place.lon.toFixed(2)}°`;
       const popupHtml = `<strong>${escapeHtml(title)}</strong><br/>${escapeHtml(place.weather.icon)} ${escapeHtml(place.weather.description)}<br/>${Math.round(place.weather.temperature)}°C — ${escapeHtml(t('clouds', { pct: Math.round(place.weather.cloudCover) }))}`;
       upsert(place.short, place.lon, place.lat, html, popupHtml);
     }
@@ -236,7 +289,7 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
         markersRef.current.delete(key);
       }
     }
-  }, [places, pinnedLocation, t]);
+  }, [places, pinnedLocation, radiusKm, nameOverrides, t]);
 
   // Cloud-cover overlay (forecast blobs)
   useEffect(() => {
@@ -304,14 +357,6 @@ export default function WeatherMap({ places, radiusKm = 60, pinnedLocation, onPi
   return (
     <div className="weather-map-container" role="region" aria-label={t('weatherMap')}>
       <div className="map-wrapper">
-        {pinnedLocation && onPinLocation && (
-          <div className="map-pin-overlay">
-            <span className="map-pin-name">{pinnedLocation.name || t('loadingLocation')}</span>
-            <button className="map-back-btn" onClick={() => onPinLocation(null)}>
-              {t('backToMyLocation')}
-            </button>
-          </div>
-        )}
         <div ref={containerRef} className="weather-map" />
       </div>
     </div>

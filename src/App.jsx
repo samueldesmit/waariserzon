@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useNearbyWeather } from './hooks/useNearbyWeather';
 import { useSunshineHourly } from './hooks/useSunshineHourly';
@@ -8,6 +8,7 @@ import NightCard from './components/NightCard';
 import SunRanking from './components/SunRanking';
 import ForecastTimeline from './components/ForecastTimeline';
 import { useLanguage } from './i18n/LanguageContext';
+import { searchPlaces, reverseGeocode } from './lib/geocoder';
 import './App.css';
 
 // Each preset opens a 24-hour scrub window starting at that offset from now.
@@ -39,7 +40,7 @@ const CITY_NAV = [
   { slug: 'zon-eindhoven', label: 'Eindhoven' },
 ];
 
-const RADIUS_OPTIONS = [10, 30, 60, 100, 200, 500];
+const RADIUS_OPTIONS = [10, 30, 60, 100, 200];
 
 function formatScrubberLabel(hoursAhead, lang, t) {
   if (hoursAhead === 0) return t('now');
@@ -98,6 +99,11 @@ function App() {
   const [presetBase, setPresetBase] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
   const [searchValue, setSearchValue] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchActive, setSearchActive] = useState(-1);
+  const [searching, setSearching] = useState(false);
+  const searchTypingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
 
   const sliderValue = Math.max(0, Math.min(SLIDER_MAX, hoursAhead - presetBase));
@@ -132,6 +138,48 @@ function App() {
   }, [playing, presetBase]);
   const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
   const activeLocation = pinnedLocation ?? location;
+
+  // Reverse-geocoded name for the active coords. Only used when the active
+  // location wasn't explicitly named by the user (e.g. raw GPS or a map
+  // click). PDOK gives us the actual woonplaats — "Grave" for someone
+  // standing in Grave — instead of findNearestCity's nearest-big-city
+  // fallback ("Wijchen").
+  const [resolvedCityName, setResolvedCityName] = useState(null);
+  const [resolvingCityName, setResolvingCityName] = useState(false);
+  useEffect(() => {
+    if (!activeLocation) {
+      setResolvedCityName(null);
+      setResolvingCityName(false);
+      return;
+    }
+    // User-named locations (search picks, city URLs) already carry a
+    // precise name — skip the lookup, that name wins.
+    if (activeLocation.cityName || activeLocation.name) {
+      setResolvedCityName(null);
+      setResolvingCityName(false);
+      return;
+    }
+    const ctl = new AbortController();
+    setResolvedCityName(null);
+    setResolvingCityName(true);
+    reverseGeocode(activeLocation.lat, activeLocation.lon, { signal: ctl.signal, lang })
+      .then((name) => {
+        if (name) setResolvedCityName(name);
+      })
+      .catch(() => {})
+      .finally(() => setResolvingCityName(false));
+    return () => ctl.abort();
+  }, [activeLocation?.lat, activeLocation?.lon, activeLocation?.cityName, activeLocation?.name, lang]);
+
+  const enrichedLocation = useMemo(() => {
+    if (!activeLocation) return null;
+    if (activeLocation.cityName || activeLocation.name) return activeLocation;
+    if (resolvedCityName) {
+      return { ...activeLocation, name: resolvedCityName, cityName: resolvedCityName };
+    }
+    return activeLocation;
+  }, [activeLocation, resolvedCityName]);
+
   // Only fetch as many days as the current preset window actually needs.
   // Default sessions stay near "Now" (4 days covers Now + slider + +1d/+3d);
   // we bump up when the user jumps to +7d or +14d.
@@ -140,7 +188,7 @@ function App() {
     Math.max(4, Math.ceil((presetBase + SLIDER_MAX + 4) / 24)),
   );
   const { places, loading: weatherLoading, refreshing, error: weatherError } = useNearbyWeather(
-    activeLocation,
+    enrichedLocation,
     radiusKm,
     hoursAhead,
     lang,
@@ -203,8 +251,37 @@ function App() {
 
   // Sync search field with active city when it changes (unless user is typing)
   useEffect(() => {
-    if (fromName) setSearchValue(fromName);
+    if (fromName && !searchTypingRef.current) setSearchValue(fromName);
   }, [fromName]);
+
+  // Debounced geocoder lookup. Re-runs on every keystroke but only after the
+  // user pauses for 250ms — keeps PDOK happy and avoids flicker.
+  useEffect(() => {
+    if (!searchTypingRef.current) return;
+    const q = searchValue.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const ctl = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchPlaces(q, { signal: ctl.signal, lang });
+        setSuggestions(results);
+        setSearchActive(results.length > 0 ? 0 : -1);
+      } catch (err) {
+        if (err?.name !== 'AbortError') setSuggestions([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      ctl.abort();
+    };
+  }, [searchValue, lang]);
 
   const active = requested || !!pinnedLocation;
   const loading = active && (geoLoading || weatherLoading);
@@ -247,9 +324,43 @@ function App() {
     [hoursAhead, lang, t],
   );
 
+  const pickSuggestion = (suggestion) => {
+    if (!suggestion) return;
+    searchTypingRef.current = false;
+    setPinnedLocation({
+      lat: suggestion.lat,
+      lon: suggestion.lon,
+      name: suggestion.cityName || suggestion.name,
+      cityName: suggestion.cityName || suggestion.name,
+    });
+    setSearchValue(suggestion.cityName || suggestion.name);
+    setSuggestions([]);
+    setSearchOpen(false);
+    setSearchActive(-1);
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    requestLocation();
+    if (suggestions.length > 0) {
+      pickSuggestion(suggestions[Math.max(0, searchActive)]);
+      return;
+    }
+    // Empty input → fall back to "use my location" so the legacy GPS shortcut
+    // still works for users who hit Enter on an empty field.
+    if (!searchValue.trim()) requestLocation();
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (!searchOpen || suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSearchActive((i) => (i + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSearchActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false);
+    }
   };
 
   const handleRankingSelect = (place) => {
@@ -274,15 +385,75 @@ function App() {
 
         <form className="location-search" aria-label={t('searchLabel')} onSubmit={handleSearchSubmit}>
           <label htmlFor="location">{t('searchLabel')}</label>
-          <div>
+          <div
+            role="combobox"
+            aria-expanded={searchOpen && suggestions.length > 0}
+            aria-haspopup="listbox"
+            aria-owns="location-suggestions"
+          >
             <PinIcon />
             <input
               id="location"
               value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              autoComplete="off"
+              onChange={(e) => {
+                searchTypingRef.current = true;
+                setSearchValue(e.target.value);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+              onKeyDown={handleSearchKeyDown}
               placeholder={t('searchPlaceholder')}
+              aria-autocomplete="list"
+              aria-controls="location-suggestions"
+              aria-activedescendant={
+                searchActive >= 0 && suggestions[searchActive]
+                  ? `location-suggestion-${searchActive}`
+                  : undefined
+              }
             />
             <button type="submit">{t('searchButton')}</button>
+            {searchOpen && (suggestions.length > 0 || (searching && searchValue.trim().length >= 2)) && (
+              <ul
+                id="location-suggestions"
+                className="location-suggestions"
+                role="listbox"
+              >
+                {suggestions.length === 0 && searching && (
+                  <li className="location-suggestions__hint" aria-disabled="true">
+                    {t('searchSearching')}
+                  </li>
+                )}
+                {suggestions.map((s, i) => (
+                  <li
+                    key={s.id}
+                    id={`location-suggestion-${i}`}
+                    role="option"
+                    aria-selected={i === searchActive}
+                    className={i === searchActive ? 'is-active' : ''}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      pickSuggestion(s);
+                    }}
+                    onMouseEnter={() => setSearchActive(i)}
+                  >
+                    <PinIcon />
+                    <span>{s.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {searchOpen
+              && !searching
+              && suggestions.length === 0
+              && searchValue.trim().length >= 2 && (
+                <ul id="location-suggestions" className="location-suggestions" role="listbox">
+                  <li className="location-suggestions__hint" aria-disabled="true">
+                    {t('searchNoResults')}
+                  </li>
+                </ul>
+            )}
           </div>
         </form>
 
@@ -381,6 +552,19 @@ function App() {
                 onPinLocation={setPinnedLocation}
                 hoursAhead={hoursAhead}
               />
+              {pinnedLocation && (
+                <div className="map-pin-overlay">
+                  <span className="map-pin-name">
+                    {pinnedLocation.name ||
+                      pinnedLocation.cityName ||
+                      resolvedCityName ||
+                      (resolvingCityName ? t('loadingLocation') : t('pinnedLocation'))}
+                  </span>
+                  <button className="map-back-btn" onClick={() => setPinnedLocation(null)}>
+                    {t('backToMyLocation')}
+                  </button>
+                </div>
+              )}
               {refreshing && (
                 <div className="map-refreshing-overlay">
                   <div className="refreshing-spinner" />

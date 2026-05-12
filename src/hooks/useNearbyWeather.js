@@ -266,13 +266,19 @@ export function useNearbyWeather(
   // Slice the cached forecast at the user's chosen hour. Pure client-side, and
   // interpolates between adjacent hours so the cloud overlay morphs smoothly
   // when the user scrubs (Buienradar-style animation).
+  // The "Here" point's cityName is overridden with the user-chosen name
+  // (from search or city URL) so e.g. "Grave" isn't replaced by the closest
+  // CITIES entry ("Wijchen"). Applied here (not in the snapshot) so a stale
+  // cache from a previous search at the same coords gets the new name.
+  const hereName = location?.cityName || location?.name || null;
   const places = useMemo(() => {
     if (!snapshot) return [];
     const targetDate = new Date(Date.now() + hoursAhead * 3600 * 1000);
     return snapshot.points.map((point, i) => {
       const h = snapshot.hourly[i];
       const d = snapshot.daily?.[i];
-      if (!h) return { ...point, weather: null };
+      const cityName = point.short === 'Here' && hereName ? hereName : point.cityName;
+      if (!h) return { ...point, cityName, weather: null };
       const { lower, upper, frac } = findHourPair(h.time, targetDate);
       // Discrete attributes (day/night, weather code) snap to nearest hour so
       // the marker emoji doesn't flicker while interpolating.
@@ -283,6 +289,7 @@ export function useNearbyWeather(
       const weather = interpretWeatherCode(weatherCode, isDay, strings);
       return {
         ...point,
+        cityName,
         weather: {
           ...weather,
           temperature: lerp(h.temperature[lower], h.temperature[upper], frac),
@@ -294,7 +301,7 @@ export function useNearbyWeather(
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapshot, hoursAhead, lang]);
+  }, [snapshot, hoursAhead, lang, hereName]);
 
   return { places, loading: initialLoading, refreshing, error };
 }

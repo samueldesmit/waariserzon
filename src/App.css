@@ -80,6 +80,7 @@
 }
 
 .location-search > div {
+  position: relative;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) auto;
   gap: 12px;
@@ -89,6 +90,62 @@
   border-radius: 999px;
   background: var(--cream);
   box-shadow: 8px 8px 0 rgba(31, 32, 24, 0.14);
+}
+
+.location-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 8px 8px 0 rgba(31, 32, 24, 0.14);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.location-suggestions li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.25;
+}
+
+.location-suggestions li.is-active,
+.location-suggestions li:hover {
+  background: var(--sun);
+}
+
+.location-suggestions li svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
+.location-suggestions__hint {
+  grid-template-columns: 1fr;
+  cursor: default;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.location-suggestions__hint:hover {
+  background: transparent;
 }
 
 .location-search svg,
@@ -940,13 +997,13 @@
 
 .marker-bubble {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   place-items: center;
-  border-radius: 16px;
-  font-size: 1.3rem;
-  border: 3px solid var(--cream);
-  box-shadow: 0 12px 22px rgba(31, 32, 24, 0.28);
+  border-radius: 12px;
+  font-size: 1rem;
+  border: 2px solid var(--cream);
+  box-shadow: 0 8px 16px rgba(31, 32, 24, 0.24);
   transition: transform 0.15s;
 }
 
@@ -975,7 +1032,7 @@
 .marker-user {
   background: var(--sun-hot);
   border-color: var(--cream);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
 }
 
 .maplibregl-popup-content {
@@ -1291,14 +1348,70 @@
     font-size: 0.8rem;
   }
 
+  /* On mobile, drop the absolute overlays out of the map and stack them
+     beneath it. The MapLibre +/- nav control stays inside the map. */
+  .sun-map-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  .sun-map-frame .weather-map-container {
+    order: 1;
+    border: 2px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
   .map-time-badge {
-    top: 12px;
-    left: 12px;
-    padding: 6px 10px;
+    position: static;
+    order: 2;
+    align-self: flex-start;
+    padding: 8px 14px;
+    pointer-events: auto;
   }
 
   .map-time-badge strong {
     font-size: 1rem;
+  }
+
+  .map-pin-overlay {
+    position: static;
+    order: 3;
+    transform: none;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .map-overlay {
+    position: static;
+    order: 4;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 18px;
+  }
+
+  /* The refreshing spinner is small and transient — keep it pinned to the
+     map's top-right so users immediately see the data is updating. */
+  .map-refreshing-overlay {
+    top: 12px;
+    right: 12px;
   }
 
   .brand-logo {
@@ -1443,15 +1556,6 @@
   .sun-map-frame .maplibregl-map,
   .sun-map-frame .weather-map {
     min-height: 380px;
-  }
-
-  .map-overlay {
-    left: 12px;
-    right: auto;
-    bottom: 12px;
-    max-width: calc(100% - 80px);
-    padding: 10px 14px;
-    gap: 10px;
   }
 
   .map-overlay button {
