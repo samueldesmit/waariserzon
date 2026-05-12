@@ -325,10 +325,21 @@
 .answer-card {
   position: relative;
   overflow: hidden;
+  /* Stable height so day/night card swaps and varying copy length don't
+     shove the map below up and down while the user scrubs time. */
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
   padding: 22px clamp(22px, 3vw, 30px);
   background:
     radial-gradient(circle at 92% 24%, rgba(255, 255, 255, 0.5) 0 64px, transparent 66px),
     linear-gradient(135deg, #fff7d8 0%, #ffc341 44%, #ff7a1a 100%);
+}
+
+/* Push route-actions to the bottom so the buttons sit on a consistent line
+   regardless of how many lines the copy or weather strip take. */
+.answer-card .route-actions {
+  margin-top: auto;
 }
 
 .answer-card.is-night {
@@ -1444,7 +1455,7 @@
   }
 
   .answer-card {
-    min-height: 0;
+    min-height: 385px;
     padding: 18px 18px 20px;
   }
 
