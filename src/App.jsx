@@ -2,11 +2,13 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useNearbyWeather } from './hooks/useNearbyWeather';
 import { useSunshineHourly } from './hooks/useSunshineHourly';
+import { useIsMobile } from './hooks/useIsMobile';
 import WeatherMap from './components/WeatherMap';
 import BestDestinationCard from './components/BestDestinationCard';
 import NightCard from './components/NightCard';
 import SunRanking from './components/SunRanking';
 import ForecastTimeline from './components/ForecastTimeline';
+import MobileShell from './components/mobile/MobileShell';
 import { useLanguage } from './i18n/LanguageContext';
 import { searchPlaces, reverseGeocode } from './lib/geocoder';
 import { detectDevice } from './lib/device';
@@ -98,6 +100,7 @@ function CrosshairIcon() {
 
 function App() {
   const { t, lang, setLang, strings } = useLanguage();
+  const isMobile = useIsMobile();
   const [radiusKm, setRadiusKm] = useState(30);
   const [hoursAhead, setHoursAhead] = useState(0);
   // presetBase = the start of the current 24h scrub window (Now = 0, +1d = 24,
@@ -378,6 +381,48 @@ function App() {
       cityName: place.cityName,
     });
   };
+
+  if (isMobile) {
+    const bag = {
+      active,
+      loading,
+      error,
+      geoError,
+      places,
+      bestPlace,
+      sunnyRanking,
+      radiusKm,
+      setRadiusKm,
+      hoursAhead,
+      presetBase,
+      sliderValue,
+      sliderMax: SLIDER_MAX,
+      handlePresetClick,
+      handleSliderChange,
+      playing,
+      setPlaying,
+      pinnedLocation,
+      setPinnedLocation,
+      requestLocation,
+      activeLocation,
+      fromName,
+      isNight,
+      userPlace,
+      sunriseTime,
+      hoursToSunrise,
+      handleSkipToSunrise,
+      timeLabel,
+      sunshineHours,
+      refreshing,
+      searchValue,
+      setSearchValue,
+      suggestions,
+      searching,
+      pickSuggestion,
+      searchTypingRef,
+    };
+    return <MobileShell bag={bag} />;
+  }
 
   return (
     <main className="page">
