@@ -9,6 +9,7 @@ import SunRanking from './components/SunRanking';
 import ForecastTimeline from './components/ForecastTimeline';
 import { useLanguage } from './i18n/LanguageContext';
 import { searchPlaces, reverseGeocode } from './lib/geocoder';
+import { detectDevice } from './lib/device';
 import './App.css';
 
 // Each preset opens a 24-hour scrub window starting at that offset from now.
@@ -41,6 +42,12 @@ const CITY_NAV = [
 ];
 
 const RADIUS_OPTIONS = [10, 30, 60, 100, 200];
+
+const GEO_DENIED_HINT_KEY = {
+  ios: 'geoDeniedHintIOS',
+  android: 'geoDeniedHintAndroid',
+  desktop: 'geoDeniedHintDesktop',
+};
 
 function formatScrubberLabel(hoursAhead, lang, t) {
   if (hoursAhead === 0) return t('now');
@@ -503,7 +510,7 @@ function App() {
           {error === 'PERMISSION_DENIED' ? (
             <>
               <p>{t('geoDenied')}</p>
-              <p className="error-hint">{t('geoDeniedHint')}</p>
+              <p className="error-hint">{t(GEO_DENIED_HINT_KEY[detectDevice()] || 'geoDeniedHint')}</p>
             </>
           ) : error === 'TIMEOUT' ? (
             <p>{t('geoTimeout')}</p>
