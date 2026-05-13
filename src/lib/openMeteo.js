@@ -57,3 +57,26 @@ export function bucketForecastDays(days) {
   if (days <= 8) return 8;
   return 16;
 }
+
+// Given the hourly array produced by useSunshineHourly and a reference time,
+// return the first hour that breaks the current sunny streak. Returns null if
+// we're not currently sunny (night or already cloudy) or if the forecast
+// horizon runs out before the streak breaks — both are signals to stay silent
+// rather than over-promise.
+export function sunnyUntil(hours, nowMs, { cloudThreshold = 40 } = {}) {
+  if (!hours || hours.length === 0) return null;
+  let startIdx = -1;
+  for (let i = 0; i < hours.length; i++) {
+    if (hours[i].time.getTime() <= nowMs) startIdx = i;
+    else break;
+  }
+  if (startIdx === -1) return null;
+  const current = hours[startIdx];
+  if (!current.isDay || current.cloudCover > cloudThreshold) return null;
+  for (let i = startIdx + 1; i < hours.length; i++) {
+    const h = hours[i];
+    if (!h.isDay) return { until: h.time, reason: 'sunset' };
+    if (h.cloudCover > cloudThreshold) return { until: h.time, reason: 'clouds' };
+  }
+  return null;
+}

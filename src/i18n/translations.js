@@ -53,6 +53,8 @@ export const translations = {
     openInMaps: 'Open in maps',
     shareAdvice: 'Share',
     shareText: '{city} — {pct}% sunshine, about {distance} km away.',
+    sunnyUntilClouds: 'Sunny until {time}',
+    sunnyUntilSunset: 'Sunny until sunset ({time})',
 
     // Night state
     nightKicker: 'It\'s night',
@@ -246,6 +248,8 @@ export const translations = {
     openInMaps: 'Open in kaart',
     shareAdvice: 'Deel advies',
     shareText: '{city} — {pct}% zon, ongeveer {distance} km verderop.',
+    sunnyUntilClouds: 'Zonnig tot {time}',
+    sunnyUntilSunset: 'Zonnig tot zonsondergang ({time})',
 
     // Night state
     nightKicker: 'Het is nacht',

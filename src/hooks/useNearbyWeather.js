@@ -290,6 +290,10 @@ export function useNearbyWeather(
       return {
         ...point,
         cityName,
+        // Thin reference into the snapshot so consumers (BestDestinationCard's
+        // sunny-streak detection) can walk forward through the forecast
+        // without re-fetching from Open-Meteo.
+        hourly: { time: h.time, cloudCover: h.cloudCover, isDay: h.isDay },
         weather: {
           ...weather,
           temperature: lerp(h.temperature[lower], h.temperature[upper], frac),

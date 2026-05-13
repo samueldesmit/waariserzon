@@ -535,6 +535,7 @@ function App() {
                 best={bestPlace}
                 fromLocation={activeLocation}
                 isNight={isNight}
+                hoursAhead={hoursAhead}
               />
             )}
           </section>

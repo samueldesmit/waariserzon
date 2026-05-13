@@ -1,7 +1,27 @@
+import { useMemo } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { sunnyUntil } from '../lib/openMeteo';
 
-export default function BestDestinationCard({ best, fromLocation, isNight }) {
-  const { t } = useLanguage();
+export default function BestDestinationCard({ best, fromLocation, isNight, hoursAhead = 0 }) {
+  const { t, lang } = useLanguage();
+  const sunWindowLine = useMemo(() => {
+    if (!best || !best.weather || !best.weather.isDay || !best.hourly) return null;
+    const raw = best.hourly;
+    const hours = raw.time.map((tStr, i) => ({
+      time: new Date(tStr),
+      cloudCover: raw.cloudCover[i],
+      isDay: raw.isDay[i] === 1,
+    }));
+    // eslint-disable-next-line react-hooks/purity
+    const momentMs = Date.now() + hoursAhead * 3600 * 1000;
+    const sun = sunnyUntil(hours, momentMs);
+    if (!sun) return null;
+    const time = sun.until.toLocaleTimeString(lang === 'nl' ? 'nl-NL' : 'en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return t(sun.reason === 'sunset' ? 'sunnyUntilSunset' : 'sunnyUntilClouds', { time });
+  }, [best, hoursAhead, lang, t]);
 
   if (!best || !best.weather) return null;
 
@@ -44,6 +64,7 @@ export default function BestDestinationCard({ best, fromLocation, isNight }) {
           ? t('answerCopyHere', { pct: sunChance, description: best.weather.description })
           : t('answerCopyAway', { pct: sunChance, distance: best.distance, description: best.weather.description.toLowerCase() })}
       </p>
+      {sunWindowLine && <p className="answer-copy answer-sunwindow">{sunWindowLine}</p>}
 
       <div className="weather-strip" aria-label={t('weatherSummary')}>
         <div>
