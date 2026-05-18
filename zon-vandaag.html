@@ -3,16 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Is er vandaag zon? Bekijk live waar de zon nu schijnt in Nederland. Live wolkenlaag, uurlijkse zonkans en sleep door de rest van de dag." />
+    <meta name="description" content="Waar schijnt de zon nu? Bekijk live op de zonnekaart waar de zon vandaag doorbreekt in Nederland. Uurlijkse zonkans, live wolkenlaag en sleep door de rest van de dag." />
     <meta name="theme-color" content="#ffc341" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="https://waariserzon.nl/zon-vandaag" />
-    <title>Is er vandaag zon? — Live zonnekaart en uurweer</title>
+    <title>Waar schijnt de zon nu? — Live zonnekaart Nederland</title>
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Is er vandaag zon? — Live zonnekaart" />
-    <meta property="og:description" content="Live waar de zon vandaag schijnt. Sleep door 24 uur en bekijk de bewolking per uur." />
+    <meta property="og:title" content="Waar schijnt de zon nu? — Live zonnekaart" />
+    <meta property="og:description" content="Bekijk live waar de zon nu schijnt in Nederland. Sleep door de uren en zie wanneer de bewolking opbreekt." />
     <meta property="og:url" content="https://waariserzon.nl/zon-vandaag" />
     <meta property="og:site_name" content="Waar is er zon?" />
     <meta property="og:locale" content="nl_NL" />
@@ -21,10 +25,42 @@
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
-      "name": "Is er vandaag zon?",
+      "name": "Waar schijnt de zon nu?",
       "url": "https://waariserzon.nl/zon-vandaag",
       "description": "Live zonkans en bewolking voor vandaag.",
       "inLanguage": "nl"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Waar schijnt de zon nu in Nederland?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "De live zonnekaart op deze pagina toont per locatie de actuele zonkans en de satelliet-wolkenlaag, met enkele minuten vertraging. Open de kaart, deel je locatie of zoek een stad, en zie binnen jouw straal welke plekken op dit moment de zon hebben."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Waar schijnt de zon meestal het langst in Nederland?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Statistisch krijgen de Zeeuwse en Hollandse kust en de Waddeneilanden de meeste zonuren per jaar: rond 1800-1850 uur, tegenover een landelijk gemiddelde van 1700-1750. Het noordoosten en Twente zijn somberder met 1600-1650 uur. De zeebries duwt bewolking landinwaarts en laat de kust structureel schoner."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Hoe nauwkeurig is de zonkans voor vandaag?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Voor de huidige dag is de uurlijkse voorspelling van Open-Meteo doorgaans binnen 10-15% bewolking nauwkeurig. Dat is goed genoeg om de keuze 'wel of niet naar het strand' op te baseren. Korte buien en laaghangende mist zijn moeilijker te modelleren."
+          }
+        }
+      ]
     }
     </script>
 
@@ -53,8 +89,8 @@
     <div id="root"></div>
 
     <article class="landing-prose" lang="nl">
-      <h1>Is er vandaag zon?</h1>
-      <p>De kaart hierboven laat zien waar in Nederland op dit moment de zon doorbreekt. De live wolkenlaag is afkomstig van satellietwaarneming via OpenWeatherMap en heeft een vertraging van een paar minuten ten opzichte van het echte beeld in de lucht. Voor de rest van de dag scrub je met de tijdbalk per kwartier door de uurlijkse voorspelling van Open-Meteo en zie je wanneer en waar de bewolking opbreekt. Standaard staat de kaart op de stand <em>Nu</em>; sleep eenvoudig naar rechts om naar 18:00, 21:00 of middernacht te springen.</p>
+      <h1>Waar schijnt de zon nu?</h1>
+      <p>De kaart hierboven laat zien waar in Nederland op dit moment de zon doorbreekt — oftewel: is er vandaag zon, en zo ja, wáár? De live wolkenlaag is afkomstig van satellietwaarneming via OpenWeatherMap en heeft een vertraging van een paar minuten ten opzichte van het echte beeld in de lucht. Voor de rest van de dag scrub je met de tijdbalk per kwartier door de uurlijkse voorspelling van Open-Meteo en zie je wanneer en waar de bewolking opbreekt. Standaard staat de kaart op de stand <em>Nu</em>; sleep eenvoudig naar rechts om naar 18:00, 21:00 of middernacht te springen.</p>
 
       <p>Het idee van deze pagina is simpel: één vraag, één antwoord. "Is er vandaag zon?" zou je niet hoeven uit te zoeken door drie weer-apps te vergelijken — je wilt direct zien waar de zon nu is, en waar hij straks naartoe trekt. Dat is precies wat de kaart bovenaan doet, en deze pagina geeft je daar de context bij.</p>
 
@@ -116,6 +152,73 @@
       <p>Verder vooruit kijken? <a href="/zon-weekend">Zon dit weekend</a>.</p>
       <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
         <a href="/about">Over</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a>
+      </p>
+    </article>
+
+    <article class="landing-prose" lang="en">
+      <h1>Where is the sun shining right now?</h1>
+      <p>The map above shows where the sun is breaking through in the Netherlands right now — in other words: is there sun today, and if so, where? The live cloud layer comes from satellite observation via OpenWeatherMap and lags the real sky by a few minutes. For the rest of the day, scrub the timeline in quarter-hour steps through Open-Meteo's hourly forecast to see when and where the cloud cover will break up. The map is set to <em>Now</em> by default; simply drag to the right to jump to 18:00, 21:00 or midnight.</p>
+
+      <p>The idea behind this page is simple: one question, one answer. "Is there sun today?" shouldn't be something you have to work out by comparing three different weather apps — you want to see straight away where the sun is right now and where it will move next. That is exactly what the map at the top does, and this page gives you the context to go with it.</p>
+
+      <h2>How to check today's sunshine chance</h2>
+      <ul>
+        <li><strong>Centre your location</strong> — click <em>Find sun</em> to share your geolocation, type a city into the search box, or click directly on a spot on the map.</li>
+        <li><strong>Timeline starts at Now</strong> — drag to the right to look at the coming hours. The label above the slider shows the exact time you are viewing, in your local time zone.</li>
+        <li><strong>Open a marker</strong> — click a coloured marker to see the sunshine chance, temperature and cloud cover for that spot, plus the distance from your location.</li>
+        <li><strong>Adjust the radius</strong> — if the sun is hiding right above your own dot, widen the radius to 30, 60 or 100 km. Often the sun is shining somewhere within 30 km.</li>
+        <li><strong>Use the ranking</strong> — below the map is a top-3 of sunniest spots within your radius. Click a row to select that spot on the map and open the route in Google Maps.</li>
+      </ul>
+
+      <h2>Where does the sun usually shine longest in the Netherlands?</h2>
+      <p>The coasts of Zeeland and Holland statistically clock up the most sunshine hours per year: Vlissingen, Hoek van Holland, The Hague and Texel score around 1,800-1,850 sunshine hours thanks to the sea-breeze bonus. The central Dutch inland (Utrecht, Apeldoorn, Arnhem) sits at 1,700-1,750 sunshine hours; Limburg and Brabant at 1,750-1,800. The gloomiest areas are parts of the north-east and Twente with 1,600-1,650 sunshine hours. On a daily scale the picture varies wildly — a random day in July can deliver 12 hours of sun in Zeeland and only 4 in Twente. Use the live map to see what is actually happening today.</p>
+
+      <h2>By time of day: how sunshine chance changes</h2>
+      <p>Sunshine chance is not a flat number for the whole day — it shifts hour by hour, sometimes drastically. A day that looks grey at 09:00 can be cobalt blue by 14:00. Drag the timeline slowly through the hours to follow the pattern and catch your natural peak-sun moment. Three common daily patterns in the Netherlands:</p>
+      <ul>
+        <li><strong>Grey morning, blue afternoon</strong> — typical summer pattern. A marine cloud layer or dew-induced stratus clears once the land warms up. The tipping point usually falls between 10:00 and 12:00. The scrubber shows the transition in a few steps from 60% → 40% → 20% cloud cover.</li>
+        <li><strong>Clear morning, afternoon thunder</strong> — a classic summer pattern in hot weather. Around 14:00-16:00, cumulus clouds build, sometimes growing into a shower. The sunshine chance drops from 80% to 30% in 2-3 hours.</li>
+        <li><strong>Overcast all day, late breakthrough</strong> — with a passing front the sky doesn't open up until after 17:00 or 18:00. The evening sun can then still give 2 hours of full sunshine; perfect for a late terrace stop.</li>
+      </ul>
+      <p>In summer the "peak sun window" often runs from late morning to evening sun around 19:00-21:00; in winter it is all about the few hours of light around midday. Use the scrubber to find the best hour for your activity.</p>
+
+      <h2>Local differences within 30 km</h2>
+      <p>Cloud cover is often surprisingly local. It is not unusual for it to drizzle on your street while 20 km away the sun is blazing — especially in spring and summer. With the radius setting you take a broader view: choose 30, 60 or 100 km to see whether it is worth driving a bit. The ranking under the map sorts the three sunniest spots within your radius — handy for quickly spotting a better destination without combing through the whole map. A few typical "local" patterns:</p>
+      <ul>
+        <li><strong>City cap</strong> — a small cloud can linger above the city thanks to the urban heat island, while polder villages just outside are already clear.</li>
+        <li><strong>Ridge cap clouds</strong> — over the Utrechtse Heuvelrug, the Veluwe and the hills of Limburg, cumulus clouds form that don't appear elsewhere.</li>
+        <li><strong>Coastline effects</strong> — the beach stays under fog longer in an easterly wind; with a south-westerly it clears earlier.</li>
+        <li><strong>Forests and meadows</strong> — dew fog forms more often over dense forest than over bare meadow; autumn mornings give the sharpest difference.</li>
+      </ul>
+
+      <h2>How accurate is the "today" forecast?</h2>
+      <p>For the current day, Open-Meteo's hourly forecast is typically accurate to within 10-15% cloud cover. That is good enough to base a "beach or no beach" decision on. Three nuances:</p>
+      <ul>
+        <li><strong>The cloud layer is not a forecast</strong> — it shows the current satellite situation from a few minutes ago; for future hours you rely on the sunshine-chance models.</li>
+        <li><strong>Short showers are tricky</strong> — convection models predict roughly where showers will form, but not always exactly where or when. For heavy rain, combine with Buienradar.</li>
+        <li><strong>Fog and stratus</strong> — low-hanging cloud is hard to model. Sometimes it only breaks up after 14:00 while the model predicted 11:00.</li>
+      </ul>
+
+      <h2>When is it worth driving for sun?</h2>
+      <p>A few rules of thumb for "drive or not drive for sun":</p>
+      <ul>
+        <li><strong>Difference &gt; 30% sunshine chance and &gt; 30 minutes of sunshine available</strong> — driving is usually worth it.</li>
+        <li><strong>Difference 15-30%</strong> — only drive if you are on the road anyway or if the spot adds extra value (beach, terrace, view).</li>
+        <li><strong>Difference &lt; 15%</strong> — don't drive; stay local and hope for clearing.</li>
+        <li><strong>Scrub through the hours first</strong> — sometimes the sun is on its way to your spot within 2 hours. Then waiting beats driving.</li>
+      </ul>
+
+      <h2>Browse by city</h2>
+      <ul>
+        <li><a href="/zon-amsterdam">Sun in Amsterdam</a></li>
+        <li><a href="/zon-rotterdam">Sun in Rotterdam</a></li>
+        <li><a href="/zon-utrecht">Sun in Utrecht</a></li>
+        <li><a href="/zon-den-haag">Sun in The Hague</a></li>
+        <li><a href="/zon-eindhoven">Sun in Eindhoven</a></li>
+      </ul>
+      <p>Looking further ahead? <a href="/zon-weekend">Sun this weekend</a>.</p>
+      <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
+        <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a>
       </p>
     </article>
 

@@ -6,7 +6,11 @@
     <meta name="description" content="Waar is er zon? Vind in real-time waar de zon schijnt bij jou in de buurt. Bekijk de zonnekaart, zon-kans per stad en plan je uitje." />
     <meta name="theme-color" content="#ffc341" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="https://waariserzon.nl/" />
     <title>Waar is er zon? — Vind zonneschijn bij jou in de buurt</title>
 
@@ -148,7 +152,7 @@
         <li><a href="/zon-den-haag">Zon in Den Haag</a> — kustweer, Scheveningen, Kijkduin</li>
         <li><a href="/zon-eindhoven">Zon in Eindhoven</a> — Brainport, Genneper Parken, Belgische Kempen</li>
       </ul>
-      <p>Of plan op tijd: <a href="/zon-vandaag">zon vandaag</a> · <a href="/zon-weekend">zon dit weekend</a></p>
+      <p>Of plan op tijd: <a href="/zon-vandaag">waar schijnt de zon nu</a> · <a href="/zon-weekend">zon dit weekend</a></p>
 
       <h2>Gidsen en uitleg</h2>
       <p>Wil je meer weten over hoe zonkans werkt, of hoe je het Nederlandse kustweer leest? In onze uitlegartikelen gaan we dieper in op de meteorologische achtergrond:</p>
@@ -172,6 +176,105 @@
 
       <h2>Privacy en cookies</h2>
       <p>We respecteren je privacy. Tracking- en advertentiecookies staan standaard uit (Google Consent Mode v2) en worden alleen geactiveerd als je daar via de consent-banner toestemming voor geeft. Lees meer in ons <a href="/privacy">privacybeleid</a>, op de <a href="/about">over-pagina</a> over de werking en achtergrond, in onze <a href="/voorwaarden">algemene voorwaarden en disclaimer</a>, of neem <a href="/contact">contact</a> op met vragen, suggesties of een melding van afwijkende data op de kaart.</p>
+    </article>
+
+    <article class="landing-prose" lang="en">
+      <h1>Waar is er zon?</h1>
+      <p>Waar is er zon? is an independent live sunshine map for the Netherlands, Belgium, Germany and the rest of Europe. The interactive map above answers one concrete question — <em>if I want to step outside right now, where nearby will the sun be shining?</em> — by combining quarter-hourly cloud cover with day and night phases. You instantly see where the sky is clear, how the clouds will move over the next few hours, and which spot within your radius has the highest sunshine chance. Click <em>Find sun</em> or enter your location, drag through 24 hours with the timeline, and pick a day preset to plan up to 14 days ahead.</p>
+
+      <p>The map is free, works without an account and is deliberately kept simple: one answer card at the top with the best spot, one interactive map in the middle, and one timeline to scrub through the hours. No push notifications, no sign-up, no hidden costs — just live weather data from Open-Meteo and a live cloud layer from OpenWeatherMap, organised around a single question: where is the sun right now?</p>
+
+      <h2>How to use the sunshine map, step by step</h2>
+      <p>The interface is built to give you an answer in three clicks, but anyone who digs a little deeper will find plenty more information per location:</p>
+      <ul>
+        <li><strong>Pick a location</strong> — click <em>Find sun</em> to let the browser fetch your geolocation, type a city into the search box at the top, or click directly on a spot on the map. Your location stays in your browser and is not stored by us.</li>
+        <li><strong>Scrub through time</strong> — the timeline starts at <em>Now</em>. Drag to the right to move through the next 24 hours in quarter-hour steps. Want to look further ahead? Click a day preset (+1d, +3d, +7d, +14d) to jump to that day's window — the slider then scrubs through that 24-hour period.</li>
+        <li><strong>Adjust the radius</strong> — the default radius is 30 km, but you can set it anywhere between 10 and 500 km. A larger radius shows whether the sun is breaking through just outside your overcast area. That is handy when you are wondering whether a trip to the coast or the woods is worth a 30-minute drive.</li>
+        <li><strong>Grab the best spot</strong> — the answer card at the top shows the sunniest location within your radius and links directly to Google Maps for the route. Below the map you will find the top-3 ranking; click a row to select that spot on the map.</li>
+        <li><strong>Zoom in for detail</strong> — drag and pinch on the map to zoom into a municipality or neighbourhood. The markers adapt and show sunshine chance, temperature and cloud cover per cluster.</li>
+      </ul>
+
+      <h2>How is the sunshine chance calculated?</h2>
+      <p>The sunshine chance is a simplified indicator that combines three ingredients per location and per hour: total cloud cover (low, mid, high), the sun's elevation above the horizon, and the time within the day-night cycle. During the day we use <code>sunshine chance = 100% − total cloud cover</code>; at night it is 0% by definition and we sort by clear sky (lowest cloud cover first), so you can still see where the clouds are thinnest for stars, the moon or an early sunrise. Around sunrise and sunset the weight of cloud cover is adjusted slightly because the sun sits low on the horizon and can still break through clearly even with 20-30% cloud cover.</p>
+
+      <p>The raw data comes from two independent sources. Open-Meteo provides hourly weather forecasts based on an ensemble of weather models (ECMWF, ICON, GFS); this gives reliable sunshine-chance values up to roughly 5-7 days ahead. OpenWeatherMap supplies satellite tiles with the current cloud layer — you see this as an overlay on the map, but only in the <em>Now</em> mode, because the free tier does not include a forecast version of the cloud layer. Beyond 7 days the forecast becomes more of an indication of the seasonal pattern than a precise hourly forecast.</p>
+
+      <h2>Which data sources do we use?</h2>
+      <ul>
+        <li><strong>Open-Meteo</strong> — free, open-source weather API from Bremen that blends several models. Provides our hourly cloud cover, temperature, precipitation and wind direction per coordinate pair. Updated every hour.</li>
+        <li><strong>OpenWeatherMap</strong> — supplies the live cloud layer (Clouds Layer) as map tiles. Source: NWP satellite data with a latency of a few minutes.</li>
+        <li><strong>OpenFreeMap + OpenStreetMap</strong> — the free vector base map with cities, roads and geography. No tracking, no API key required.</li>
+        <li><strong>GeoNames</strong> — open database with more than 8,000 European cities, towns and place names, used for the search box and the place labels on the map.</li>
+      </ul>
+
+      <h2>Who is Waar is er zon? made for?</h2>
+      <p>The sunshine map is built for people who want to head outside on the spur of the moment and need to know where it will actually be sunny — not just whether it will be sunny somewhere. That is a distinction regular weather apps rarely handle well. Concrete scenarios where the map shines:</p>
+      <ul>
+        <li><strong>Terrace planners</strong> — torn between a terrace in town or a drive to the beach? The ranking shows which spot within 30-60 km is currently the sunniest option, including expected sun-hours per location.</li>
+        <li><strong>Cyclists and walkers</strong> — increase the radius to 100 km and see whether a route in another direction stays drier. Especially useful in spring and autumn, when cloud cover is patchy.</li>
+        <li><strong>Photographers</strong> — by scrubbing through the hours in quarter-hour steps you can pinpoint the golden-hour moment when the clouds break for the right kind of light.</li>
+        <li><strong>Parents with kids</strong> — find a sunny playground or city beach within driving range without first manually checking three different weather apps.</li>
+        <li><strong>Barbecue and festival-goers</strong> — look +1d or +7d ahead to see whether the planned day is a sure thing or whether you need a plan B.</li>
+        <li><strong>Commuters and sun lovers</strong> — simply a quick check on whether that lunch break will be spent outside or indoors.</li>
+      </ul>
+
+      <h2>Tips for planning a sunny afternoon</h2>
+      <p>A few practical habits get the most out of the map:</p>
+      <ul>
+        <li><strong>Start wide, then zoom in</strong> — first pick a radius of 60-100 km to see where the clouds are sitting, and then zoom in on the sunny sector. In the Netherlands, "an hour's drive" is often the difference between full sun and grey skies.</li>
+        <li><strong>Combine cloud layer and sunshine chance</strong> — the cloud layer shows what is happening now; the sunshine chance shows what will happen next. An overcast sky that will break up in an hour is only visible if you look at both.</li>
+        <li><strong>Watch the wind direction</strong> — in the Netherlands, cloud cover usually moves from the south-west to the north-east. If your location is overcast now and the clouds are drifting off in that direction, the sky usually clears within 1-2 hours.</li>
+        <li><strong>Coastal spots are often sunnier in the afternoon</strong> — thanks to the sea breeze, cloud cover lingers inland while the beach clears up around 11:00.</li>
+        <li><strong>Plan two days ahead</strong> — the +1d and +3d forecasts are typically within a few tenths of cloud cover and accurate enough to lock in a day out.</li>
+        <li><strong>Don't trust +14d blindly</strong> — that forecast is more a direction than a promise. Come back the day before your outing to confirm.</li>
+      </ul>
+
+      <h2>Limitations and honest caveats</h2>
+      <p>The sunshine map is a tool, not an oracle. There are a few situations in which the forecast is less reliable and where it makes sense to consult other sources as well:</p>
+      <ul>
+        <li><strong>Coastal locations with a sea breeze</strong> — models do not always pin the sea breeze onto exactly the right time. So you might see 60% cloud cover forecast while the sun is already breaking through at 10:00.</li>
+        <li><strong>Cap clouds over hills</strong> — over the Utrechtse Heuvelrug, the Veluwe and the hills of Limburg, local cumulus clouds can form that are invisible at a 10 km grid resolution.</li>
+        <li><strong>Thunderstorms</strong> — short heavy summer showers are difficult to time at the hourly level. For heavy rain, Buienradar or the KNMI radar is a useful complement.</li>
+        <li><strong>Sunrise and sunset</strong> — just before and after sunrise, the sun can already break through firmly even at 30% cloud cover. The sunshine chance then slightly underestimates reality.</li>
+        <li><strong>Long-range forecasts</strong> — beyond 7 days the ensemble has not yet averaged out, so the hourly forecast can shift considerably.</li>
+      </ul>
+
+      <h2>Why a separate tool alongside Buienradar and KNMI?</h2>
+      <p>Buienradar and KNMI do what they do very well — precipitation and official weather warnings — but they do not answer the specific question "where within my radius is the sun going to be strongest". They show rain, not sunshine chance. Regular weather apps show a sunshine percentage for one location but no comparison with the places around it. Waar is er zon? fills that gap: a spatial comparison per hour, so you not only know whether it will be sunny, but also where it will be sunnier than where you are. For official weather warnings and detailed radar we point you to the <a href="https://www.knmi.nl/" target="_blank" rel="noopener noreferrer">KNMI</a>.</p>
+
+      <h2>Cities with their own page</h2>
+      <p>For the major Dutch cities we have dedicated landing pages that zoom straight in on that location, with climate context, local tips per neighbourhood and an explanation of the typical weather patterns for that area:</p>
+      <ul>
+        <li><a href="/zon-amsterdam">Sun in Amsterdam</a> — climate figures, Vondelpark, IJburg, city beach</li>
+        <li><a href="/zon-rotterdam">Sun in Rotterdam</a> — Maas coast, Kralingse Plas, Hoek van Holland</li>
+        <li><a href="/zon-utrecht">Sun in Utrecht</a> — central location, Heuvelrug, Loosdrechtse Plassen</li>
+        <li><a href="/zon-den-haag">Sun in The Hague</a> — coastal weather, Scheveningen, Kijkduin</li>
+        <li><a href="/zon-eindhoven">Sun in Eindhoven</a> — Brainport, Genneper Parken, Belgian Kempen</li>
+      </ul>
+      <p>Or plan ahead: <a href="/zon-vandaag">where is the sun shining now</a> · <a href="/zon-weekend">sun this weekend</a></p>
+
+      <h2>Guides and explainers</h2>
+      <p>Want to know more about how sunshine chance works, or how to read Dutch coastal weather? Our explainer articles dig deeper into the meteorological background:</p>
+      <ul>
+        <li><a href="/zonkans-uitleg">What is sunshine chance and how is it calculated?</a> — the formula, the cloud layers and how to read 60% versus 90%.</li>
+        <li><a href="/uv-index">UV index in the Netherlands</a> — when protection is needed and how UV varies with clouds and seasons.</li>
+        <li><a href="/zeebries">Sea breeze and coastal weather</a> — why the sun often breaks through on the coast around 11:00.</li>
+        <li><a href="/zonneschijn-per-maand">Sunshine hours per month in the Netherlands</a> — a complete monthly breakdown plus regional differences.</li>
+        <li><a href="/zonnigste-plekken-nederland">The sunniest places in the Netherlands</a> — the top 10 regions with climate figures and day-trip tips.</li>
+      </ul>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Does the map work outside the Netherlands too?</h3>
+      <p>Yes. Open-Meteo covers all of Europe and beyond; the places database contains more than 8,000 European locations. In the Netherlands and the neighbouring countries the model grid is densest (so the forecast is most detailed); further away the network thins out.</p>
+      <h3>Why does the sunshine chance differ from my weather app?</h3>
+      <p>Other apps often use their own model, or compute "sunshine" based on solar radiation rather than cloud cover. Our indicator is deliberately simple — cloud cover is what you actually see — and feasible across dozens of points per location. For the general pattern it usually lines up well; for precise radiation values a professional app will be more accurate.</p>
+      <h3>How often is the data refreshed?</h3>
+      <p>Open-Meteo's hourly forecast is refreshed every hour. OpenWeatherMap's live cloud layer has a latency of a few minutes relative to the satellite image.</p>
+      <h3>Do you store my location?</h3>
+      <p>No. Your geolocation is used only in your browser to centre the map and fetch the weather data. We do not receive any identifiable information; only Open-Meteo and OpenWeatherMap receive anonymous coordinates as part of the request.</p>
+
+      <h2>Privacy and cookies</h2>
+      <p>We respect your privacy. Tracking and advertising cookies are off by default (Google Consent Mode v2) and only activate if you give permission through the consent banner. Read more in our <a href="/privacy">privacy policy</a>, on the <a href="/about">about page</a> covering how the site works and the story behind it, in our <a href="/voorwaarden">terms and disclaimer</a>, or <a href="/contact">get in touch</a> with questions, suggestions or a report of anomalous data on the map.</p>
     </article>
 
     <script type="module" src="/src/main.jsx"></script>

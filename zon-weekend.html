@@ -6,7 +6,11 @@
     <meta name="description" content="Is het zonnig in het weekend? Bekijk de zonkans voor zaterdag en zondag op de live kaart, met uurlijkse voorspellingen tot 14 dagen vooruit." />
     <meta name="theme-color" content="#ffc341" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="https://waariserzon.nl/zon-weekend" />
     <title>Is het zonnig in het weekend? — Live zonnekaart</title>
 
@@ -123,9 +127,86 @@
         <li><a href="/zon-den-haag">Zon in Den Haag</a></li>
         <li><a href="/zon-eindhoven">Zon in Eindhoven</a></li>
       </ul>
-      <p>Of kijk naar nu: <a href="/zon-vandaag">zon vandaag</a>.</p>
+      <p>Of kijk naar nu: <a href="/zon-vandaag">waar schijnt de zon nu</a>.</p>
       <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
         <a href="/about">Over</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a>
+      </p>
+    </article>
+
+    <article class="landing-prose" lang="en">
+      <h1>Will it be sunny this weekend?</h1>
+      <p>Plan your weekend with the live sunshine map above. Click <em>+1d</em>, <em>+3d</em>, <em>+7d</em> or <em>+14d</em> to jump to a specific day, then drag the timeline in quarter-hour steps through the 24 hours to see hour by hour how the cloud cover looks. For the coming weekend the forecasts are usually accurate to within a few tenths of cloud cover — good enough to book a terrace, plan a bike ride or lock in a day at the seaside. For the weekend after that the map gives you a direction; come back a few days later to confirm.</p>
+
+      <p>The idea behind this page: quickly decide "outside or not, and if so, where?". The question of whether the weekend will be sunny is not a single number but a distribution: which day, which hour, which region. Waar is er zon? makes that distribution visible — so not just "70% chance of sun on Saturday", but "Saturday 13:00 = 80% where you are, 95% in Den Bosch; Sunday 10:00 = 30% where you are, 60% on the coast".</p>
+
+      <h2>Plan your weekend in three steps</h2>
+      <ol>
+        <li><strong>Pick a day preset</strong> — click +1d, +3d, +7d or +14d to jump to the right day window. The timeline then starts at midnight on that day and you can scrub through the 24 hours.</li>
+        <li><strong>Drag through the hours</strong> — find the sunniest part of the day. Often 11:00 differs sharply from 16:00; sometimes there is a brief sunny window between two showers.</li>
+        <li><strong>Compare locations</strong> — widen the radius to 60 or 100 km and see whether a trip to the coast, the Veluwe or the Achterhoek will deliver more sun than staying at home.</li>
+      </ol>
+
+      <h2>Which day will be sunnier: Saturday or Sunday?</h2>
+      <p>Stuck between Saturday and Sunday? Click through both day presets and note which one delivers more sun hours within your radius. Then drag through the hours to see which part of the day is best to plan around — a morning walk often calls for different weather than a long terrace lunch. The answer card at the top shows the best spot per day; the ranking reveals whether a better option lies just outside town.</p>
+
+      <p>A few handy rules of thumb:</p>
+      <ul>
+        <li><strong>Front passing on Saturday morning</strong> — Sunday is often clearly sunnier as the back end of a depression moves in.</li>
+        <li><strong>High pressure settling in</strong> — Sunday is usually more stable and sunnier than Saturday.</li>
+        <li><strong>Heatwave</strong> — Saturday often crisp and clear, Sunday warmer and muggier with evening thunder.</li>
+        <li><strong>Persistent north-westerly wind</strong> — both days similar but unsettled; pick by the hour rather than by the day.</li>
+      </ul>
+
+      <h2>Long-range reliability: what does the model know, and when?</h2>
+      <p>Open-Meteo combines several weather models (ECMWF, ICON, GFS, HARMONIE) into a single hourly forecast. Reliability tapers off the further you look ahead. Roughly:</p>
+      <ul>
+        <li><strong>0-2 days</strong> (today to the day after tomorrow) — forecast accurate to within 10-15% cloud cover at the hourly level. Good enough to lock something in.</li>
+        <li><strong>3-5 days</strong> — the pattern is usually stable but the exact hours can still shift. Good for weekend planning, not for choosing the precise terrace hour.</li>
+        <li><strong>6-10 days</strong> — the broad direction (warm/cold, dry/wet) is usually right, but daily detail can shift considerably. Use as a rough indicator.</li>
+        <li><strong>11-14 days</strong> — no more than a statistical picture. Treat it as "the direction of the weather this season", not a promise for a specific day.</li>
+      </ul>
+      <p>The model only "settles" on a clear picture about 3-4 days before the day itself, once all the models converge on a single scenario. For weekend trips: check the map on Monday or Tuesday for a first impression, Thursday evening for confirmation, and Saturday morning for the final call.</p>
+
+      <h2>Which part of the day is best to plan around?</h2>
+      <p>A sunny Saturday is not automatically a terrace Saturday. The combination of sunshine chance, temperature and wind decides whether it actually feels pleasant outside. Four typical parts of the day:</p>
+      <ul>
+        <li><strong>Morning (08:00-11:00)</strong> — often still cool, marine cloud cover may still be hanging around. Good for walking or cycling, less so for sitting on a terrace.</li>
+        <li><strong>Late morning to midday (11:00-14:00)</strong> — sun usually at its strongest, warmth building. Ideal brunch or terrace-lunch window.</li>
+        <li><strong>Early to late afternoon (14:00-17:00)</strong> — warmest hours, but also a risk of cumulus build-up and thunder in summer. Beach and swimming-pool time.</li>
+        <li><strong>Late afternoon to evening (17:00-21:00)</strong> — golden hours with warm sun, often calmer wind. The perfect aperitif and barbecue window.</li>
+      </ul>
+
+      <h2>Weekend planning examples</h2>
+      <h3>Beach weekend in Zeeland or The Hague</h3>
+      <p>Click +1d (Saturday) and +2d (Sunday). Drag through the afternoon (12:00-17:00). Compare the sunshine chance on the coast with the one in your home neighbourhood. At the same percentage the beach often delivers more sun hours thanks to the sea breeze; at a 15% difference, a drive to the coast is usually worth it.</p>
+
+      <h3>Cycle ride through the polder</h3>
+      <p>Plan it on a day with low sunshine-chance uncertainty (a summer day with high pressure). Watch the wind direction: a loop with the wind on the way back is more pleasant than a crosswind. Wind speed isn't part of the sun ranking, but you can see it when you open a marker.</p>
+
+      <h3>Festival or barbecue day</h3>
+      <p>Check not only the sunshine chance but also the precipitation chance (open a marker to see the rainfall forecast). Summer thunderstorms usually arrive from the south-west; a glance at the live cloud layer reveals whether something is coming in.</p>
+
+      <h3>Terrace in town</h3>
+      <p>For terrace-sitting you want afternoon sun + low wind + a temperature above ~18 °C. The sunshine chance is the first filter; then click on the marker for temperature and wind. Early afternoon often has the most favourable mix.</p>
+
+      <h2>What if the whole weekend looks grey?</h2>
+      <p>In the Netherlands a fully overcast day is rarely completely sunless — there is usually a clearing somewhere within 60-100 km. Two tactics:</p>
+      <ul>
+        <li><strong>Widen the radius</strong> to 100 or even 200 km. Is there a clearing in the north? In the south? In the Achterhoek? The ranking points you in the right direction.</li>
+        <li><strong>Look later in the day</strong> — often the cloud cover breaks up in the late afternoon. Drag the scrubber to 17:00-19:00 and see whether the sunshine chance rises by then.</li>
+      </ul>
+
+      <h2>Browse by city</h2>
+      <ul>
+        <li><a href="/zon-amsterdam">Sun in Amsterdam</a></li>
+        <li><a href="/zon-rotterdam">Sun in Rotterdam</a></li>
+        <li><a href="/zon-utrecht">Sun in Utrecht</a></li>
+        <li><a href="/zon-den-haag">Sun in The Hague</a></li>
+        <li><a href="/zon-eindhoven">Sun in Eindhoven</a></li>
+      </ul>
+      <p>Or look at right now: <a href="/zon-vandaag">where the sun is shining now</a>.</p>
+      <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
+        <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a>
       </p>
     </article>
 

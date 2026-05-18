@@ -92,6 +92,17 @@ export const translations = {
     aboutLink: 'About',
     contactLink: 'Contact',
     privacyLink: 'Privacy',
+    termsLink: 'Terms',
+    guidesNavLabel: 'Guides and explanation',
+    guideZonkansLink: 'What is sunshine chance?',
+    guideSeabreezeLink: 'Sea breeze',
+    guideMonthlyLink: 'Sun hours per month',
+    guideSunniestNLLink: 'Sunniest places NL',
+
+    // Generic UI
+    done: 'Done',
+    close: 'Close',
+    clear: 'Clear',
 
     // Location card
     youAreHere: 'You are here',
@@ -290,6 +301,17 @@ export const translations = {
     aboutLink: 'Over',
     contactLink: 'Contact',
     privacyLink: 'Privacy',
+    termsLink: 'Voorwaarden',
+    guidesNavLabel: 'Gidsen en uitleg',
+    guideZonkansLink: 'Wat is zonkans?',
+    guideSeabreezeLink: 'Zeebries',
+    guideMonthlyLink: 'Zonuren per maand',
+    guideSunniestNLLink: 'Zonnigste plekken NL',
+
+    // Generic UI
+    done: 'Klaar',
+    close: 'Sluiten',
+    clear: 'Wissen',
 
     // Location card
     youAreHere: 'Je bent hier',

@@ -6,7 +6,11 @@
     <meta name="description" content="Wat is zonkans? Een complete uitleg hoe het percentage zonkans berekend wordt, wat het zegt over de bewolking, en hoe je 60% of 90% zonkans interpreteert in de praktijk." />
     <meta name="theme-color" content="#ffc341" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="https://waariserzon.nl/zonkans-uitleg" />
     <title>Wat is zonkans en hoe wordt het berekend? — Waar is er zon?</title>
 
@@ -122,6 +126,74 @@
       <p>Of bekijk de zonnekaart voor: <a href="/zon-amsterdam">Amsterdam</a> · <a href="/zon-rotterdam">Rotterdam</a> · <a href="/zon-utrecht">Utrecht</a> · <a href="/zon-den-haag">Den Haag</a> · <a href="/zon-eindhoven">Eindhoven</a> · <a href="/zon-vandaag">vandaag</a> · <a href="/zon-weekend">weekend</a></p>
       <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
         <a href="/about">Over</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/voorwaarden">Voorwaarden</a>
+      </p>
+    </article>
+
+    <article class="landing-prose" lang="en">
+      <h1>What is sunshine chance and how is it calculated?</h1>
+      <p>Sunshine chance is a percentage that indicates how likely it is that the sun will break through the clouds at a particular time and place. It is a simple but powerful indicator because it captures two things at once — what the model forecasts for cloud cover, and what fraction of the sky is expected to be open. On waariserzon.nl we use sunshine chance as the main metric for the ranking and the answer card: a location with 85% sunshine chance is clearly a better destination than one at 30%, even if both have the same temperature.</p>
+
+      <p>This article explains how the percentage is technically derived, what the underlying meteorological logic is, and — more importantly — how to interpret the number in practice. Sunshine chance does not say the same thing as "how many minutes of sun" or "how many watts of radiation per square metre": it is a probability, and you read it differently from a measurement.</p>
+
+      <h2>The formula in one sentence</h2>
+      <p>During the day we calculate sunshine chance as <code>100% − total cloud cover</code>. A location with 30% total cloud cover therefore has 70% sunshine chance. A completely overcast sky (100% cloud cover) gives 0% sunshine chance; a cloudless sky (0% cloud cover) gives 100% sunshine chance. At night the sunshine chance is 0% by definition, but we then rank places by the clearest sky so you can still see where the clouds are thinnest — useful, for instance, for stargazing or an early sunrise.</p>
+
+      <h2>What "cloud cover" goes into that number?</h2>
+      <p>Total cloud cover is a composite of three layers that the weather model tracks separately:</p>
+      <ul>
+        <li><strong>Low cloud cover</strong> — cloud below 2 km altitude. This is the classic "grey blanket" that is so recognisable in the Netherlands: stratus, stratocumulus, and fog extending up into cloud.</li>
+        <li><strong>Mid cloud cover</strong> — cloud between 2 and 6 km. Think altocumulus and altostratus; the "fleecy clouds" and the thin grey blanket that still lets the sun shine through dimly.</li>
+        <li><strong>High cloud cover</strong> — cloud above 6 km. Cirrus and cirrostratus, thin ice clouds that rarely block the sun completely.</li>
+      </ul>
+      <p>Open-Meteo delivers these three values separately plus a total cloud cover, and we use that total for the sunshine chance. In practice the difference between "30% low" and "30% high" is huge — low-hanging cloud blocks direct sunlight outright, while high cirrus lets through 70-80%. A sunshine chance of 50% with mostly cirrus feels much sunnier than the same 50% with stratus. We show this distinction when you open a marker on the map.</p>
+
+      <h2>Why is this a simple but useful approach?</h2>
+      <p>More complex sunshine indicators exist — for example, solar irradiance in W/m² or "sunshine duration" measured as minutes above a threshold of direct sunlight. These are more accurate for things like solar panel yield or medical UV exposure, but for the practical question "is it sunny enough outside to head out?" they add little and make the percentage less intuitive. Sunshine chance is deliberately simple:</p>
+      <ul>
+        <li><strong>Directly derivable from model data</strong> — no extra processing, little delay, robust against model updates.</li>
+        <li><strong>A natural probabilistic interpretation</strong> — "70% sunshine chance" feels to most people similar to "70% chance of dry weather" or "70% chance of success", something most intuitively grasp.</li>
+        <li><strong>Sensitive to local differences</strong> — by pulling a separate cloud-cover value for each coordinate pair, you see the difference between central Amsterdam and Almere, even if they are only 30 km apart.</li>
+        <li><strong>Computable at hourly resolution</strong> — Open-Meteo provides hourly forecasts, so we can compute a fresh sunshine chance for every hour in the next 24 (or even 336).</li>
+      </ul>
+
+      <h2>How do you read 60% versus 90% sunshine chance in practice?</h2>
+      <p>The numbers are percentages — but what do they feel like in reality? A rough guide:</p>
+      <ul>
+        <li><strong>90-100%</strong> — deep blue sky or just some high cirrus. Full sun on your face. Ideal for the beach, photography or a terrace.</li>
+        <li><strong>70-89%</strong> — mostly sunny with a few clouds. Occasionally a brief shaded moment as a small cloud passes the sun, but the overall feel stays sunny.</li>
+        <li><strong>50-69%</strong> — mixed. Sun and clouds alternate in periods of 10-20 minutes. Fine for a walk or cycle ride; less ideal for sitting on a terrace because the sun is unreliable.</li>
+        <li><strong>30-49%</strong> — mostly cloudy with occasional clearings. Brighter moments possible, but the sun is more the exception than the rule.</li>
+        <li><strong>10-29%</strong> — a closed cloud deck with the occasional patch of sun through a gap. Not sunny in any practical sense.</li>
+        <li><strong>0-9%</strong> — fully overcast, possibly rain or grey stratus.</li>
+      </ul>
+      <p>Important: these percentages apply to the whole hour. A sunshine chance of 60% over 14:00-15:00 means that on average 60% of the sky is free of clouds during that hour, not that there are 36 minutes of sun and 24 minutes of cloud. In practice it often roughly works out, but the exact distribution depends on cloud movement.</p>
+
+      <h2>What sunshine chance does not tell you</h2>
+      <p>Sunshine chance is not a complete weather forecast. A few things are deliberately left out:</p>
+      <ul>
+        <li><strong>UV radiation</strong> — direct sunlight is dimmed by cirrus or mid-level cloud, but UV largely is not. A day with 50% sunshine chance can have a UV index of 6, comparable to a cloudless morning in May. For that, read our <a href="/uv-index">UV index guide</a>.</li>
+        <li><strong>Chance of precipitation</strong> — cloud cover and rain are not the same thing. Dense stratus gives 0% sunshine chance but possibly not a drop of rain. For precipitation: click on a marker and look at the hourly values, or use Buienradar.</li>
+        <li><strong>Wind and temperature</strong> — these determine whether a sunny day feels pleasant or cold. With an easterly wind, 80% sunshine chance can still be a cold afternoon walk.</li>
+        <li><strong>Microclimates</strong> — shade cast by buildings, the shady side of streets, woods or the dune edge. The percentage is about the sky above that point; what happens locally on the ground is an addition.</li>
+        <li><strong>Short showers and thunderstorms</strong> — an average of 70% sunshine chance over an hour can be a combination of 40 minutes of sun and 20 minutes of a heavy shower. The hourly average masks the thunderstorm.</li>
+      </ul>
+
+      <h2>What about around sunrise and sunset?</h2>
+      <p>When the sun is low on the horizon (typically the first hour after sunrise and the last before sunset), sunlight still cuts through thin to medium cloud quite well because the rays strike at a shallow angle. In those periods a sunshine chance of 60% often delivers a stronger feeling of sun than the same 60% at 13:00. Our ranking accounts for this in broad terms, but for the exact radiation threshold a UV index measurement is more precise.</p>
+
+      <h2>How local is sunshine chance?</h2>
+      <p>The raw data from Open-Meteo is computed on a grid of roughly 11×11 km (ECMWF) down to 2.5×2.5 km (HARMONIE NL). For most places in the Netherlands we sample points on a finer pattern so the map shows a separate value per kilometre, but below that spatial resolution it becomes less reliable. Concretely: you do see the difference between central Amsterdam and Almere (different cells), but not between streets in the same neighbourhood.</p>
+
+      <h2>Other topics</h2>
+      <ul>
+        <li><a href="/uv-index">UV index and skin protection</a></li>
+        <li><a href="/zeebries">Sea breeze: how coastal weather works</a></li>
+        <li><a href="/zonneschijn-per-maand">Sun hours per month in the Netherlands</a></li>
+        <li><a href="/zonnigste-plekken-nederland">The sunniest places in the Netherlands</a></li>
+      </ul>
+      <p>Or check the sun map for: <a href="/zon-amsterdam">Amsterdam</a> · <a href="/zon-rotterdam">Rotterdam</a> · <a href="/zon-utrecht">Utrecht</a> · <a href="/zon-den-haag">The Hague</a> · <a href="/zon-eindhoven">Eindhoven</a> · <a href="/zon-vandaag">today</a> · <a href="/zon-weekend">weekend</a></p>
+      <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
+        <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/voorwaarden">Terms</a>
       </p>
     </article>
 

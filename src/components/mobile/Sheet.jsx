@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Modal pull-up sheet. Backdrop tap dismisses; Escape dismisses; focus is
 // trapped inside while open. `detent` controls height: 'large' = ~92vh
@@ -13,6 +14,7 @@ export default function Sheet({
   leftAction,
   contentClassName = '',
 }) {
+  const { t } = useLanguage();
   const ref = useRef(null);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function Sheet({
                 type="button"
                 className="m-sheet-close"
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={t('close')}
               >
                 ×
               </button>

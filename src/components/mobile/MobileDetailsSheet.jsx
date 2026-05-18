@@ -49,7 +49,7 @@ export default function MobileDetailsSheet({
       title={t('topPlaces')}
       detent="large"
       rightAction={
-        <button type="button" className="m-sheet-action" onClick={onClose}>Done</button>
+        <button type="button" className="m-sheet-action" onClick={onClose}>{t('done')}</button>
       }
     >
       <section className="m-section">

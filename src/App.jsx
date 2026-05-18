@@ -743,14 +743,14 @@ function App() {
         </ul>
       </nav>
 
-      <nav className="city-nav" aria-label="Gidsen">
-        <strong>{lang === 'nl' ? 'Gidsen en uitleg' : 'Guides and explanation'}</strong>
+      <nav className="city-nav" aria-label={t('guidesNavLabel')}>
+        <strong>{t('guidesNavLabel')}</strong>
         <ul>
-          <li><a href="/zonkans-uitleg">{lang === 'nl' ? 'Wat is zonkans?' : 'What is zonkans?'}</a></li>
+          <li><a href="/zonkans-uitleg">{t('guideZonkansLink')}</a></li>
           <li><a href="/uv-index">UV-index</a></li>
-          <li><a href="/zeebries">{lang === 'nl' ? 'Zeebries' : 'Sea breeze'}</a></li>
-          <li><a href="/zonneschijn-per-maand">{lang === 'nl' ? 'Zonuren per maand' : 'Sun hours per month'}</a></li>
-          <li><a href="/zonnigste-plekken-nederland">{lang === 'nl' ? 'Zonnigste plekken NL' : 'Sunniest places NL'}</a></li>
+          <li><a href="/zeebries">{t('guideSeabreezeLink')}</a></li>
+          <li><a href="/zonneschijn-per-maand">{t('guideMonthlyLink')}</a></li>
+          <li><a href="/zonnigste-plekken-nederland">{t('guideSunniestNLLink')}</a></li>
         </ul>
       </nav>
 
@@ -771,7 +771,7 @@ function App() {
           {' · '}
           <a href="/privacy">{t('privacyLink')}</a>
           {' · '}
-          <a href="/voorwaarden">{lang === 'nl' ? 'Voorwaarden' : 'Terms'}</a>
+          <a href="/voorwaarden">{t('termsLink')}</a>
         </p>
       </footer>
     </main>

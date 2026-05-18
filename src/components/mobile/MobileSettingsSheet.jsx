@@ -16,7 +16,7 @@ export default function MobileSettingsSheet({ open, onClose, lang, setLang }) {
       title={t('settings')}
       detent="medium"
       rightAction={
-        <button type="button" className="m-sheet-action" onClick={onClose}>Done</button>
+        <button type="button" className="m-sheet-action" onClick={onClose}>{t('done')}</button>
       }
     >
       <div className="m-settings-group">
@@ -38,7 +38,7 @@ export default function MobileSettingsSheet({ open, onClose, lang, setLang }) {
       </div>
 
       <div className="m-settings-group">
-        <h3>About</h3>
+        <h3>{t('aboutLink')}</h3>
         <div className="m-settings-card">
           <a
             className="m-settings-row"

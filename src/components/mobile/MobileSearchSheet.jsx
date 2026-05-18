@@ -79,7 +79,7 @@ export default function MobileSearchSheet({
               type="button"
               className="m-search-clear"
               onClick={() => onQueryChange('')}
-              aria-label="Clear"
+              aria-label={t('clear')}
             >
               ×
             </button>
