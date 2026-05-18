@@ -12,10 +12,17 @@ const LANDING_PAGES = [
   'zon-eindhoven',
   'zon-vandaag',
   'zon-weekend',
+  // Topic guides — same template, React app + long-form prose.
+  'zonkans-uitleg',
+  'uv-index',
+  'zeebries',
+  'zonneschijn-per-maand',
+  'zonnigste-plekken-nederland',
   // Legal / informational pages — standalone (no React app).
   'privacy',
   'contact',
   'about',
+  'voorwaarden',
 ];
 
 export default defineConfig({

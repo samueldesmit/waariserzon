@@ -52,26 +52,68 @@
   <body>
     <div id="root"></div>
 
-    <article class="landing-prose">
+    <article class="landing-prose" lang="nl">
       <h1>Is het zonnig in het weekend?</h1>
-      <p>Plan je weekend met de live zonnekaart hierboven. Klik op <em>+1d</em>, <em>+3d</em> of <em>+7d</em> om naar de komende zaterdag en zondag te springen, en sleep dan met de tijdbalk door de 24 uur om uur per uur te zien hoe de bewolking eruit ziet.</p>
+      <p>Plan je weekend met de live zonnekaart hierboven. Klik op <em>+1d</em>, <em>+3d</em>, <em>+7d</em> of <em>+14d</em> om naar een specifieke dag te springen, en sleep dan met de tijdbalk per kwartier door de 24 uur om uur per uur te zien hoe de bewolking eruit ziet. Voor het komende weekend zijn de voorspellingen meestal binnen een paar tienden bewolking nauwkeurig — goed genoeg om een terras te boeken, een fietstocht te plannen of een dagje aan zee vast te leggen. Voor het weekend daarna geeft de kaart een richting; kom een paar dagen later terug om te bevestigen.</p>
 
-      <h2>Zo plan je het weekend</h2>
+      <p>Het idee van deze pagina: snel beslissen "naar buiten of niet, en zo ja, waar?". De vraag of het weekend zonnig wordt is niet één getal maar een verdeling: welke dag, welk uur, welke regio. Waar is er zon? maakt die verdeling zichtbaar — dus niet alleen "70% kans op zon zaterdag", maar "zaterdag 13:00 = 80% bij jou, 95% in Den Bosch; zondag 10:00 = 30% bij jou, 60% aan de kust".</p>
+
+      <h2>Zo plan je het weekend in drie stappen</h2>
+      <ol>
+        <li><strong>Kies een dag-preset</strong> — klik +1d, +3d, +7d of +14d om naar het juiste dag-venster te springen. De tijdbalk start dan op middernacht van die dag en je kunt door de 24 uur scrubben.</li>
+        <li><strong>Sleep door de uren</strong> — vind het zonnigste dagdeel. Vaak verschilt 11:00 sterk van 16:00; soms is er een korte zonperiode tussen twee buien.</li>
+        <li><strong>Vergelijk locaties</strong> — vergroot de straal naar 60 of 100 km en zie of een rit naar de kust, de Veluwe of de Achterhoek meer zon oplevert dan thuisblijven.</li>
+      </ol>
+
+      <h2>Welke dag wordt zonniger: zaterdag of zondag?</h2>
+      <p>Twijfel je tussen zaterdag en zondag? Klik door beide dag-presets en noteer welke meer zon-uren oplevert binnen jouw straal. Sleep daarna door de uren om te zien op welk dagdeel je het beste plant — een ochtendwandeling vraagt vaak ander weer dan een lange terraslunch. De antwoordkaart bovenaan toont per dag de beste plek; de ranking laat zien of er een betere optie net buiten de stad ligt.</p>
+
+      <p>Een paar handige vuistregels:</p>
       <ul>
-        <li>Kies een dag-preset om naar zaterdag of zondag te springen — de tijdbalk start dan op middernacht van die dag.</li>
-        <li>Sleep door de 24 uur om de zonnigste momenten te vinden.</li>
-        <li>Vergelijk steden door de straal te vergroten of een andere locatie te pinnen.</li>
-        <li>Voor langetermijnplannen: presets gaan tot +14 dagen, maar voorspellingen voorbij ongeveer 5 dagen zijn een indicatie.</li>
+        <li><strong>Frontpassage rond zaterdagochtend</strong> — vaak zondag duidelijk zonniger door achterzijde van een depressie.</li>
+        <li><strong>Hogedrukgebied vestigt zich</strong> — zondag meestal stabieler en zonniger dan zaterdag.</li>
+        <li><strong>Hittegolf</strong> — zaterdag vaak fris helder, zondag warmer en zwoeler met avondonweer.</li>
+        <li><strong>Aanhoudende noordwestenwind</strong> — beide dagen vergelijkbaar maar onbestendig; kies op uur in plaats van op dag.</li>
       </ul>
 
-      <h2>Welke dag wordt zonniger?</h2>
-      <p>Open-Meteo levert hourly forecasts gebaseerd op meerdere weermodellen. Voor het komende weekend zijn de voorspellingen meestal betrouwbaar; voor het weekend daarna kunnen ze nog flink schuiven. De kaart laat de actuele voorspelling zien — kom een dag voor je uitje terug om te zien of het beeld nog klopt.</p>
+      <h2>Lange-termijn betrouwbaarheid: wat weet het model wanneer?</h2>
+      <p>Open-Meteo combineert meerdere weermodellen (ECMWF, ICON, GFS, HARMONIE) tot één uurlijkse voorspelling. De betrouwbaarheid neemt af naarmate je verder vooruit kijkt. Globaal:</p>
+      <ul>
+        <li><strong>0-2 dagen</strong> (vandaag tot overmorgen) — voorspelling binnen 10-15% bewolking nauwkeurig op uurniveau. Goed genoeg om iets vast te leggen.</li>
+        <li><strong>3-5 dagen</strong> — patroon is meestal stabiel maar uurprecies kan nog verschuiven. Goed voor weekendplanning, niet voor exact terrasuur.</li>
+        <li><strong>6-10 dagen</strong> — algemene richting (warm/koud, droog/nat) klopt meestal, maar dagdetail kan flink verspringen. Gebruik als grove indicator.</li>
+        <li><strong>11-14 dagen</strong> — niet meer dan een statistisch beeld. Behandel als "de richting van het weer in dit seizoen", niet als belofte voor een specifieke dag.</li>
+      </ul>
+      <p>Het model "settelt" pas op een eenduidig beeld zo'n 3-4 dagen voor de dag zelf, zodra alle modellen op één scenario convergeren. Voor weekenduitjes: check de kaart maandag of dinsdag voor een eerste indruk, donderdagavond voor de bevestiging, en zaterdagochtend voor de finale.</p>
 
-      <h2>Lange-termijn betrouwbaarheid</h2>
-      <p>Voor het weekend dat eraan komt zijn voorspellingen meestal binnen een paar tienden bewolking nauwkeurig — handig om te beslissen of je een terras boekt of binnen iets plant. Het weekend daarna kan nog flink schuiven; modellen "settelen" pas op een eenduidig beeld zo'n 3-4 dagen voor de dag zelf. Gebruik +7d en +14d dus als richting, niet als belofte, en kom een dag voor je uitje terug om te bevestigen.</p>
+      <h2>Op welk dagdeel het beste plannen?</h2>
+      <p>Een zonnige zaterdag is niet automatisch een terras-zaterdag. De combinatie van zonkans, temperatuur en wind bepaalt of het buiten ook echt aangenaam is. Vier typische dagdelen:</p>
+      <ul>
+        <li><strong>Ochtend (08:00-11:00)</strong> — vaak nog koel, mariene wolkenlaag kan nog hangen. Goed voor wandelen of fietsen, slecht voor lang terraszitten.</li>
+        <li><strong>Late ochtend tot middag (11:00-14:00)</strong> — zon meestal op haar sterkst, warmte stijgt. Ideale brunch- of terraslunch-periode.</li>
+        <li><strong>Vroege middag tot late namiddag (14:00-17:00)</strong> — warmste uren, maar ook risico op stapelwolken en onweer in de zomer. Strand- en zwembadtijd.</li>
+        <li><strong>Late middag tot avond (17:00-21:00)</strong> — gouden uren met warme zon, vaak rustigere wind. Perfecte aperitief- en bbq-periode.</li>
+      </ul>
 
-      <h2>Een dag uitkiezen</h2>
-      <p>Twijfel je tussen zaterdag en zondag? Klik door beide dag-presets en noteer welke meer zon-uren oplevert binnen jouw straal. Sleep daarna door de uren om te zien op welk dagdeel je het beste plant — een ochtendwandeling vraagt vaak ander weer dan een lange terraslunch. De antwoordkaart bovenaan toont per dag de beste plek; de ranking laat zien of er een betere optie net buiten de stad ligt.</p>
+      <h2>Voorbeelden van weekendplanning</h2>
+      <h3>Strandweekend in Zeeland of Den Haag</h3>
+      <p>Klik +1d (zaterdag) en +2d (zondag). Sleep door de middag (12:00-17:00). Vergelijk de zonkans aan de kust met die in jouw thuiswijk. Bij hetzelfde percentage levert het strand vaak meer zon-uren op door de zeebries; bij 15% verschil is een rit naar de kust meestal de moeite waard.</p>
+
+      <h3>Fietstocht door de polder</h3>
+      <p>Plan op een dag met lage zonkans-onzekerheid (zomerse dag met hogedruk). Kijk naar windrichting: een ronde mét de wind retour is aangenamer dan dwars. De wind-velocity zit niet in de zonranking, maar je ziet hem als je een markering opent.</p>
+
+      <h3>Festival- of bbq-dag</h3>
+      <p>Check niet alleen de zonkans maar ook neerslagkans (open een markering voor neerslagvoorspelling). Onweersbuien in de zomer komen meestal vanuit zuidwesten; een blik op de live wolkenlaag laat zien of er iets aan komt.</p>
+
+      <h3>Terras in de stad</h3>
+      <p>Voor terraszitten zoek je middagzon + lage wind + temperatuur boven ~18 °C. De zonkans is de eerste filter; klik vervolgens op de markering voor temperatuur en wind. Vroege middag heeft vaak de gunstigste mix.</p>
+
+      <h2>Wat als het hele weekend grijs lijkt?</h2>
+      <p>In Nederland is een hele dag bewolkt zelden volledig zonloos — er is meestal ergens binnen 60-100 km wel een opklaringszone. Twee tactieken:</p>
+      <ul>
+        <li><strong>Vergroot de straal</strong> naar 100 of zelfs 200 km. Zit in het noorden ergens een opklaring? In het zuiden? De Achterhoek? De ranking wijst je de richting.</li>
+        <li><strong>Kijk later op de dag</strong> — vaak breekt het laat-namiddag open. Sleep de scrubber naar 17:00-19:00 en zie of de zonkans dan oploopt.</li>
+      </ul>
 
       <h2>Per stad bekijken</h2>
       <ul>

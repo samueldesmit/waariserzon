@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Wat is zonkans? Een complete uitleg hoe het percentage zonkans berekend wordt, wat het zegt over de bewolking, en hoe je 60% of 90% zonkans interpreteert in de praktijk." />
+    <meta name="theme-color" content="#ffc341" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="canonical" href="https://waariserzon.nl/zonkans-uitleg" />
+    <title>Wat is zonkans en hoe wordt het berekend? — Waar is er zon?</title>
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Wat is zonkans en hoe wordt het berekend?" />
+    <meta property="og:description" content="Uitleg over het zonkans-percentage: hoe het uit bewolking wordt berekend, wat de beperkingen zijn en hoe je 60% versus 90% in de praktijk leest." />
+    <meta property="og:url" content="https://waariserzon.nl/zonkans-uitleg" />
+    <meta property="og:site_name" content="Waar is er zon?" />
+    <meta property="og:locale" content="nl_NL" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Wat is zonkans en hoe wordt het berekend?",
+      "description": "Uitleg over het zonkans-percentage, hoe het uit bewolking wordt berekend en hoe je het in de praktijk interpreteert.",
+      "url": "https://waariserzon.nl/zonkans-uitleg",
+      "inLanguage": "nl",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Waar is er zon?",
+        "url": "https://waariserzon.nl/"
+      }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-5C4ZHTNMDM');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5C4ZHTNMDM"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6138110048651676" crossorigin="anonymous"></script>
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-6138110048651676?ers=1" nonce=""></script>
+    <script>(function(){function s(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;display:none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(s,0);}}}s();})();</script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <article class="landing-prose" lang="nl">
+      <h1>Wat is zonkans en hoe wordt het berekend?</h1>
+      <p>Zonkans is een percentage dat aangeeft hoe waarschijnlijk het is dat de zon op een bepaald moment en op een bepaalde plek door de wolken doorbreekt. Het is een eenvoudige maar krachtige indicator omdat het twee dingen tegelijk vangt — wat het model voorspelt aan bewolking, en welk deel van het hemelgewelf naar verwachting open is. Op waariserzon.nl gebruiken we zonkans als hoofdmetric voor de ranking en de antwoordkaart: een plek met 85% zonkans is duidelijk een betere bestemming dan eentje met 30%, ook als beide locaties dezelfde temperatuur hebben.</p>
+
+      <p>Dit artikel legt uit hoe het percentage technisch tot stand komt, wat de onderliggende meteorologische logica is, en — belangrijker — hoe je het getal in de praktijk interpreteert. Want zonkans zegt niet hetzelfde als "hoeveel minuten zon" of "hoeveel watt straling per vierkante meter": het is een waarschijnlijkheid, en die lees je anders dan een meting.</p>
+
+      <h2>De formule in één zin</h2>
+      <p>Overdag berekenen we zonkans als <code>100% − totale bewolking</code>. Een locatie met 30% totale bewolking heeft dus 70% zonkans. Een hemel die volledig dicht zit (100% bewolking) geeft 0% zonkans; een wolkeloze hemel (0% bewolking) geeft 100% zonkans. 's Nachts is de zonkans per definitie 0%, maar we sorteren plekken dan op de helderste hemel zodat je nog steeds kunt zien waar de wolken het dunst zijn — bijvoorbeeld voor sterren kijken of een vroege zonsopkomst.</p>
+
+      <h2>Welke "bewolking" zit er in dat getal?</h2>
+      <p>De totale bewolking is een samenstelling van drie lagen die het weermodel apart bijhoudt:</p>
+      <ul>
+        <li><strong>Low cloud cover</strong> — bewolking onder 2 km hoogte. Dit is de klassieke "grijze deken" die in Nederland zo herkenbaar is: stratus, stratocumulus, mist die zich uitstrekt tot wolken.</li>
+        <li><strong>Mid cloud cover</strong> — bewolking tussen 2 en 6 km. Denk aan altocumulus en altostratus; de "schapenwolkjes" en de dunne grijze deken die de zon nog laat doorschemeren.</li>
+        <li><strong>High cloud cover</strong> — bewolking boven 6 km. Cirrus en cirrostratus, dun ijswolken die de zon zelden volledig blokkeren.</li>
+      </ul>
+      <p>Open-Meteo levert deze drie waarden afzonderlijk plus een totale bewolking, en wij gebruiken dat totaal voor de zonkans. In de praktijk is het verschil tussen "30% laag" en "30% hoog" gigantisch — laaghangende bewolking blokkeert direct zonlicht, hoge cirrus laat 70-80% door. Een zonkans van 50% met overwegend cirrus geeft een veel zonniger gevoel dan dezelfde 50% met stratus. We laten het verschil zien als je een markering op de kaart opent.</p>
+
+      <h2>Waarom is dit een eenvoudige maar bruikbare benadering?</h2>
+      <p>Er bestaan complexere zonneschijn-indicatoren — bijvoorbeeld de zonnestraling in W/m² of de "sunshine duration" gemeten als minuten boven een drempelwaarde van direct zonlicht. Die zijn nauwkeuriger voor zaken als zonnepanelenrendement of medische UV-blootstelling, maar voor de praktische vraag "is het buiten zonnig genoeg om naar buiten te gaan" voegen ze weinig toe en maken ze het percentage minder intuïtief. Zonkans is bewust simpel:</p>
+      <ul>
+        <li><strong>Direct uit modelgegevens af te leiden</strong> — geen extra verwerking, weinig vertraging, robuust tegen modelupdates.</li>
+        <li><strong>Een natuurlijke waarschijnlijkheidsinterpretatie</strong> — "70% zonkans" voelt voor mensen vergelijkbaar met "70% kans op droog weer" of "70% kans op slagen", iets dat de meeste mensen intuïtief begrijpen.</li>
+        <li><strong>Gevoelig voor lokale verschillen</strong> — door per coördinatenpaar een eigen bewolkingsgraad op te halen, zie je verschil tussen Amsterdam-centrum en Almere, ook al ligt dat maar 30 km uit elkaar.</li>
+        <li><strong>Op uurniveau berekenbaar</strong> — Open-Meteo levert uurlijkse voorspellingen, dus we kunnen voor elk uur in de komende 24 (of zelfs 336) een nieuwe zonkans berekenen.</li>
+      </ul>
+
+      <h2>Hoe lees je 60% versus 90% zonkans in de praktijk?</h2>
+      <p>De nummers zijn percentages — maar wat voelen ze in het echt? Een grof overzicht:</p>
+      <ul>
+        <li><strong>90-100%</strong> — strakblauwe hemel of slechts wat hoge cirrus. Volle zon op je gezicht. Ideaal voor strand, fotograferen of een terras.</li>
+        <li><strong>70-89%</strong> — overwegend zonnig met enkele wolken. Soms een korte schaduwperiode als een wolkje voor de zon schuift, maar het gevoel blijft zonnig.</li>
+        <li><strong>50-69%</strong> — gemengd. Zon en wolken wisselen elkaar af in periodes van 10-20 minuten. Prima voor een wandeling of fietstocht; minder ideaal voor terraszitten omdat de zon onbetrouwbaar is.</li>
+        <li><strong>30-49%</strong> — overwegend bewolkt met soms een opklaring. Helderdere periodes mogelijk maar de zon is meer uitzondering dan regel.</li>
+        <li><strong>10-29%</strong> — gesloten wolkendek met af en toe een zonneschijntje door een gaatje. Niet zonnig in de praktische zin.</li>
+        <li><strong>0-9%</strong> — volledig bewolkt, mogelijk regen of grauwe stratus.</li>
+      </ul>
+      <p>Belangrijk: deze percentages gelden voor het hele uur. Een zonkans van 60% over 14:00-15:00 betekent dat er gemiddeld 60% van het hemelgewelf vrij van wolken is in dat uur, niet dat er 36 minuten zon is en 24 minuten wolk. In de praktijk klopt dat vaak wel ongeveer, maar de exacte verdeling hangt af van de wolkbewegingen.</p>
+
+      <h2>Wat zonkans niet vertelt</h2>
+      <p>Zonkans is geen complete weervoorspelling. Een paar dingen vallen er bewust buiten:</p>
+      <ul>
+        <li><strong>UV-straling</strong> — door cirrus of mid-clouds wordt direct zonlicht gedimd maar UV grotendeels niet. Een dag met 50% zonkans kan UV-index 6 hebben, vergelijkbaar met een wolkeloze ochtend in mei. Lees daarvoor onze <a href="/uv-index">UV-index gids</a>.</li>
+        <li><strong>Neerslagkans</strong> — bewolking en regen zijn niet hetzelfde. Een dichte stratus geeft 0% zonkans maar mogelijk geen druppel regen. Voor neerslag: klik op een markering en bekijk de uurlijkse waarden of gebruik Buienradar.</li>
+        <li><strong>Wind en temperatuur</strong> — bepalen of een zonnige dag aangenaam óf koud aanvoelt. Bij oosters wind kan 80% zonkans nog steeds een koude wandelmiddag zijn.</li>
+        <li><strong>Microklimaten</strong> — schaduw door gebouwen, schaduwzijde van straten, bossen of duinrand. Het percentage gaat over de hemel boven die punt; wat lokaal op de grond gebeurt is een aanvulling.</li>
+        <li><strong>Korte buien en onweer</strong> — een gemiddelde van 70% zonkans over een uur kan een combinatie zijn van 40 minuten zon en 20 minuten dichte regenbui. Het uurgemiddelde maskeert het onweer.</li>
+      </ul>
+
+      <h2>Hoe zit het rond zonsopgang en -ondergang?</h2>
+      <p>Wanneer de zon laag aan de horizon staat (typisch het eerste uur na opkomst en het laatste voor ondergang) breekt het zonlicht zelfs door dunne tot middelmatige bewolking nog flink heen, omdat de stralen onder een vlakke hoek invallen. In die periodes geeft een zonkans van 60% vaak een sterker zon-gevoel dan om 13:00 met dezelfde 60%. Onze ranking houdt daar globaal rekening mee, maar voor de exacte stralingsdrempel ben je nauwkeuriger af met een UV-index-meting.</p>
+
+      <h2>Hoe lokaal werkt zonkans?</h2>
+      <p>De ruwe data van Open-Meteo wordt op een grid van ongeveer 11×11 km (ECMWF) tot 2,5×2,5 km (HARMONIE NL) berekend. Voor de meeste plekken in Nederland sampelen we punten op een fijner stramien zodat de kaart per kilometer een eigen waarde laat zien, maar onder die ruimtelijke resolutie wordt het minder betrouwbaar. Concreet: je ziet wel het verschil tussen Amsterdam-Centrum en Almere (verschillende cellen), maar niet tussen straten in dezelfde wijk.</p>
+
+      <h2>Andere onderwerpen</h2>
+      <ul>
+        <li><a href="/uv-index">UV-index en huidbescherming</a></li>
+        <li><a href="/zeebries">Zeebries: hoe kustweer werkt</a></li>
+        <li><a href="/zonneschijn-per-maand">Zonuren per maand in Nederland</a></li>
+        <li><a href="/zonnigste-plekken-nederland">De zonnigste plekken van Nederland</a></li>
+      </ul>
+      <p>Of bekijk de zonnekaart voor: <a href="/zon-amsterdam">Amsterdam</a> · <a href="/zon-rotterdam">Rotterdam</a> · <a href="/zon-utrecht">Utrecht</a> · <a href="/zon-den-haag">Den Haag</a> · <a href="/zon-eindhoven">Eindhoven</a> · <a href="/zon-vandaag">vandaag</a> · <a href="/zon-weekend">weekend</a></p>
+      <p style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(31,32,24,.18); font-size: .9rem; color: rgba(31,32,24,.7);">
+        <a href="/about">Over</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/voorwaarden">Voorwaarden</a>
+      </p>
+    </article>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

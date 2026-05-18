@@ -719,17 +719,6 @@ function App() {
         </>
       )}
 
-      <section className="seo-section">
-        <h2>{t('seoHeading')}</h2>
-        <p>{t('seoText')}</p>
-        <h3>{t('seoHeading2')}</h3>
-        <p>{t('seoText2')}</p>
-        <h3>{t('seoHeading3')}</h3>
-        <p>{t('seoText3')}</p>
-        <h3>{t('seoHeading4')}</h3>
-        <p>{t('seoText4')}</p>
-      </section>
-
       <section className="faq-section" itemScope itemType="https://schema.org/FAQPage">
         <h2>{t('faqTitle')}</h2>
         {(strings.faqItems || []).map((item, i) => (
@@ -754,6 +743,17 @@ function App() {
         </ul>
       </nav>
 
+      <nav className="city-nav" aria-label="Gidsen">
+        <strong>{lang === 'nl' ? 'Gidsen en uitleg' : 'Guides and explanation'}</strong>
+        <ul>
+          <li><a href="/zonkans-uitleg">{lang === 'nl' ? 'Wat is zonkans?' : 'What is zonkans?'}</a></li>
+          <li><a href="/uv-index">UV-index</a></li>
+          <li><a href="/zeebries">{lang === 'nl' ? 'Zeebries' : 'Sea breeze'}</a></li>
+          <li><a href="/zonneschijn-per-maand">{lang === 'nl' ? 'Zonuren per maand' : 'Sun hours per month'}</a></li>
+          <li><a href="/zonnigste-plekken-nederland">{lang === 'nl' ? 'Zonnigste plekken NL' : 'Sunniest places NL'}</a></li>
+        </ul>
+      </nav>
+
       <footer className="app-footer">
         <p>
           {t('footerData')}{' '}
@@ -770,6 +770,8 @@ function App() {
           <a href="/contact">{t('contactLink')}</a>
           {' · '}
           <a href="/privacy">{t('privacyLink')}</a>
+          {' · '}
+          <a href="/voorwaarden">{lang === 'nl' ? 'Voorwaarden' : 'Terms'}</a>
         </p>
       </footer>
     </main>

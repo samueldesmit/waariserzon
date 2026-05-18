@@ -8,9 +8,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="canonical" href="https://waariserzon.nl/" />
-    <link rel="alternate" hreflang="nl" href="https://waariserzon.nl/" />
-    <link rel="alternate" hreflang="en" href="https://waariserzon.nl/" />
-    <link rel="alternate" hreflang="x-default" href="https://waariserzon.nl/" />
     <title>Waar is er zon? — Vind zonneschijn bij jou in de buurt</title>
 
     <!-- Open Graph -->
@@ -20,7 +17,6 @@
     <meta property="og:url" content="https://waariserzon.nl/" />
     <meta property="og:site_name" content="Waar is er zon?" />
     <meta property="og:locale" content="nl_NL" />
-    <meta property="og:locale:alternate" content="en_GB" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -42,7 +38,7 @@
         "price": "0",
         "priceCurrency": "EUR"
       },
-      "inLanguage": ["nl", "en"]
+      "inLanguage": "nl"
     }
     </script>
 
@@ -76,37 +72,106 @@
   <body>
     <div id="root"></div>
 
-    <!-- Static prose so search engines and the AdSense crawler see real
-         content even before React mounts. The React app renders into #root
-         above; this stays visible underneath as supplementary SEO copy. -->
-    <article class="landing-prose">
+    <!-- Static prose with substantive original content. Kept visible after
+         React mounts so the per-page Dutch text serves as the primary on-page
+         content for crawlers, users without JS, and search-engine indexing. -->
+    <article class="landing-prose" lang="nl">
       <h1>Waar is er zon?</h1>
-      <p>Waar is er zon? is een live zonnekaart voor Nederland en Europa. De kaart hierboven laat zien waar het op dit moment helder is, hoe de bewolking de komende uren beweegt en waar binnen jouw straal de meeste zon hangt. Klik op <em>Vind zon</em> of geef je locatie op, sleep door 24 uur met de tijdbalk, en kies een dag-preset om tot 14 dagen vooruit te plannen.</p>
+      <p>Waar is er zon? is een onafhankelijke live zonnekaart voor Nederland, België, Duitsland en de rest van Europa. De interactieve kaart hierboven beantwoordt één concrete vraag — <em>als ik nu naar buiten wil, waar in mijn buurt schijnt straks de zon?</em> — door per kwartier de bewolkingsgraad te combineren met dag- en nachtstand. Je ziet meteen waar het helder is, hoe de bewolking de komende uren beweegt, en welke plek binnen je straal de hoogste zonkans heeft. Klik op <em>Vind zon</em> of geef je locatie op, sleep door 24 uur met de tijdbalk, en kies een dag-preset om tot 14 dagen vooruit te plannen.</p>
 
-      <h2>Hoe gebruik je de zonnekaart?</h2>
+      <p>De kaart is gratis, werkt zonder account en is bewust simpel gehouden: één antwoordkaart bovenaan met de beste plek, één interactieve kaart in het midden en één tijdbalk om door de uren te bewegen. Geen pushmeldingen, geen registratie, geen verborgen kosten — alleen actuele weersdata van Open-Meteo en een live wolkenlaag van OpenWeatherMap, voor jou geordend op één vraag: waar zit nu de zon?</p>
+
+      <h2>Hoe gebruik je de zonnekaart stap voor stap?</h2>
+      <p>De interface is opgezet om in drie klikken een antwoord te geven, maar wie iets dieper graaft vindt veel meer informatie per locatie:</p>
       <ul>
-        <li><strong>Locatie kiezen</strong> — laat de browser je locatie ophalen of typ een stad in het zoekveld bovenaan.</li>
-        <li><strong>Tijd scrubben</strong> — sleep de tijdbalk om door 24 uur te bewegen, of klik <em>+1d</em>, <em>+3d</em>, <em>+7d</em>, <em>+14d</em> om naar een dag-venster te springen.</li>
-        <li><strong>Straal aanpassen</strong> — kies tussen 10 en 500 km. Een grotere straal laat zien of de zon net buiten jouw bewolkte gebied wel doorbreekt.</li>
-        <li><strong>Beste plek pakken</strong> — de antwoordkaart bovenaan toont de zonnigste locatie binnen je straal en linkt rechtstreeks naar Google Maps voor de route.</li>
+        <li><strong>Locatie kiezen</strong> — klik op <em>Vind zon</em> om de browser je geolocatie te laten ophalen, typ een stad in het zoekveld bovenaan, of klik direct op een plek op de kaart. Je locatie blijft in je browser en wordt niet door ons opgeslagen.</li>
+        <li><strong>Tijd scrubben</strong> — de tijdbalk start op <em>Nu</em>. Sleep naar rechts om per kwartier door de komende 24 uur te bewegen. Wil je verder vooruit? Klik op een dag-preset (+1d, +3d, +7d, +14d) om naar dat dag-venster te springen — de slider scrubt dan door die 24 uur.</li>
+        <li><strong>Straal aanpassen</strong> — de standaardstraal is 30 km, maar je kunt instellen tussen 10 en 500 km. Een grotere straal laat zien of de zon net buiten jouw bewolkte gebied wél doorbreekt. Dat is handig als je twijfelt of een uitje naar de kust of de bossen 30 minuten rijden waard is.</li>
+        <li><strong>Beste plek pakken</strong> — de antwoordkaart bovenaan toont de zonnigste locatie binnen je straal en linkt rechtstreeks naar Google Maps voor de route. Onder de kaart staat de top-3 ranking; klik op een rij om die plek op de kaart te selecteren.</li>
+        <li><strong>Inzoomen voor detail</strong> — sleep en pinch op de kaart om in te zoomen op een gemeente of wijk. De markeringen passen zich aan en laten zonkans, temperatuur en bewolkingsgraad per cluster zien.</li>
       </ul>
 
-      <h2>Steden met een eigen pagina</h2>
-      <p>Voor de grote Nederlandse steden hebben we vaste landingspagina's die direct op die locatie inzoomen, met klimaatcontext en lokale tips:</p>
+      <h2>Hoe wordt de zonkans berekend?</h2>
+      <p>De zonkans is een vereenvoudigde indicator die per locatie en per uur drie ingrediënten combineert: de totale bewolkingsgraad (laag, midden, hoog), de hoogte van de zon boven de horizon en het tijdstip in de dag-nachtcyclus. Overdag rekenen we <code>zonkans = 100% − totale bewolking</code>; 's nachts is hij per definitie 0% en sorteren we op heldere hemel (kleinste bewolking eerst), zodat je nog steeds ziet waar de wolken het dunst zijn voor sterren, maan of een vroege zonsopgang. Rond zonsopkomst en -ondergang wordt het gewicht van de bewolking iets bijgesteld omdat de zon dan laag aan de horizon staat en zelfs bij 20-30% bewolking nog flink kan doorbreken.</p>
+
+      <p>De ruwe data komt van twee onafhankelijke bronnen. Open-Meteo levert uurlijkse weersvoorspellingen op basis van een ensemble van weermodellen (ECMWF, ICON, GFS); dat geeft betrouwbare zonkans-waarden tot ongeveer 5-7 dagen vooruit. OpenWeatherMap levert satelliet-tegels met de actuele wolkenlaag — die zie je als overlay op de kaart, maar alleen op de stand <em>Nu</em>, omdat de gratis tier geen forecast-versie van de wolkenlaag heeft. Voorbij 7 dagen wordt de voorspelling steeds meer een indicatie van het seizoenspatroon dan een precieze uurvoorspelling.</p>
+
+      <h2>Welke databronnen gebruiken we?</h2>
       <ul>
-        <li><a href="/zon-amsterdam">Zon in Amsterdam</a></li>
-        <li><a href="/zon-rotterdam">Zon in Rotterdam</a></li>
-        <li><a href="/zon-utrecht">Zon in Utrecht</a></li>
-        <li><a href="/zon-den-haag">Zon in Den Haag</a></li>
-        <li><a href="/zon-eindhoven">Zon in Eindhoven</a></li>
+        <li><strong>Open-Meteo</strong> — gratis, open-source weer-API uit Bremen die meerdere modellen samenvoegt. Levert ons de uurlijkse bewolkingsgraad, temperatuur, neerslag en windrichting per coördinatenpaar. Update: elk uur.</li>
+        <li><strong>OpenWeatherMap</strong> — levert de live wolkenlaag (Clouds Layer) als kaarttegels. Bron: NWP-satellietgegevens met een latentie van enkele minuten.</li>
+        <li><strong>OpenFreeMap + OpenStreetMap</strong> — de gratis vector-basiskaart met steden, wegen en geografie. Geen tracking, geen API-key vereist.</li>
+        <li><strong>GeoNames</strong> — open database met meer dan 8.000 Europese steden, dorpen en plaatsnamen voor het zoekveld en de plaats-labels op de kaart.</li>
+      </ul>
+
+      <h2>Voor wie is Waar is er zon? gemaakt?</h2>
+      <p>De zonnekaart is opgezet voor mensen die spontaan naar buiten willen en daarbij willen weten waar het écht zonnig wordt — niet alleen óf het zonnig wordt. Dat is een verschil dat reguliere weer-apps zelden goed laten zien. Concrete scenario's waarin de kaart het beste werkt:</p>
+      <ul>
+        <li><strong>Terrasplanners</strong> — twijfel je tussen een terras in de stad of een rit naar het strand? De ranking laat zien welke plek binnen 30-60 km nu de zonnigste optie is, inclusief verwacht zon-uur per locatie.</li>
+        <li><strong>Fietsers en wandelaars</strong> — vergroot de straal naar 100 km en zie of een tocht in een andere richting droger blijft. Vooral handig in de lente en herfst, wanneer bewolking lokaal werkt.</li>
+        <li><strong>Fotografen</strong> — door per kwartier door de uren te scrubben kun je het golden hour-moment vinden waarop de bewolking openbreekt voor de juiste lichtinval.</li>
+        <li><strong>Ouders met kinderen</strong> — een zonnige speeltuin of stadsstrand vinden binnen rijbereik, zonder eerst handmatig drie weer-apps te raadplegen.</li>
+        <li><strong>Bbq- en festivalgangers</strong> — kijk +1d of +7d vooruit om te zien of de geplande dag zonzeker is of dat er een plan B nodig is.</li>
+        <li><strong>Pendelaars en zonliefhebbers</strong> — gewoon snel zien of die middagpauze buiten of binnen wordt.</li>
+      </ul>
+
+      <h2>Tips voor een zonnige middag plannen</h2>
+      <p>Een paar praktische gewoonten halen het meeste uit de kaart:</p>
+      <ul>
+        <li><strong>Begin breed, zoom dan in</strong> — kies eerst een straal van 60-100 km om te zien waar de wolken zitten, en zoom dan in op de zonnige sector. In Nederland is "een uur rijden" vaak het verschil tussen volle zon en grijs.</li>
+        <li><strong>Combineer wolkenlaag en zonkans</strong> — de wolkenlaag laat zien wat er nu gebeurt; de zonkans wat er straks gebeurt. Een bewolkte hemel die over een uur opbreekt zie je alleen als je beide bekijkt.</li>
+        <li><strong>Let op richting</strong> — bewolking trekt in Nederland meestal vanuit het zuidwesten naar het noordoosten. Als jouw locatie nu bewolkt is en de wolken trekken weg in die richting, schoont de hemel meestal binnen 1-2 uur op.</li>
+        <li><strong>Kustlocaties zijn vaak zonniger 's middags</strong> — door zeebries blijft de bewolking landinwaarts hangen terwijl het strand schoonbreekt rond 11:00.</li>
+        <li><strong>Plan twee dagen vooruit</strong> — de +1d en +3d voorspellingen zijn meestal binnen een paar tienden bewolking nauwkeurig en goed genoeg om een uitje vast te leggen.</li>
+        <li><strong>Vertrouw +14d niet blind</strong> — die voorspelling is meer een richting dan een belofte. Kom een dag voor je uitje terug om te bevestigen.</li>
+      </ul>
+
+      <h2>Beperkingen en eerlijke kanttekeningen</h2>
+      <p>De zonnekaart is een hulpmiddel, geen orakel. Er zijn een paar situaties waarin de voorspelling minder betrouwbaar is en het verstandig is om ook andere bronnen te raadplegen:</p>
+      <ul>
+        <li><strong>Kustlocaties met zeebries</strong> — modellen rekenen de zeebries niet altijd precies op het juiste tijdstip in. Het kan dus voorkomen dat de kaart 60% bewolking voorspelt terwijl de zon al om 10:00 doorbreekt.</li>
+        <li><strong>Stuwbewolking boven heuvels</strong> — boven de Utrechtse Heuvelrug, de Veluwe en de Limburgse heuvels vormen zich soms lokale stapelwolken die op een 10 km grid niet zichtbaar zijn.</li>
+        <li><strong>Onweersbuien</strong> — korte hevige buien in de zomer zijn lastig op uurniveau te timen. Voor zware regen is Buienradar of de KNMI-radar aanvullend handig.</li>
+        <li><strong>Zonsopgang en -ondergang</strong> — vlak voor en na zonsopkomst kan zelfs bij 30% bewolking de zon al strak doorbreken. De zonkans onderschat dan iets.</li>
+        <li><strong>Verre voorspelling</strong> — voorbij 7 dagen is het ensemble nog niet uitgemiddeld; de uurprecies-voorspelling kan dan flink verspringen.</li>
+      </ul>
+
+      <h2>Waarom een aparte tool naast Buienradar en KNMI?</h2>
+      <p>Buienradar en KNMI doen wat ze doen heel goed — neerslag en officiële weerwaarschuwingen — maar ze beantwoorden niet de specifieke vraag "waar binnen mijn straal is straks de zon het sterkst". Ze laten regen zien, niet zonkans. Reguliere weer-apps tonen een zonkans-getal voor één locatie maar geen vergelijking met de plekken eromheen. Waar is er zon? vult dat gat: een ruimtelijke vergelijking per uur, zodat je niet alleen weet óf het zonnig wordt, maar ook waar het zónniger wordt dan bij jou. Voor officiële weeralarmen en gedetailleerde radar verwijzen we naar het <a href="https://www.knmi.nl/" target="_blank" rel="noopener noreferrer">KNMI</a>.</p>
+
+      <h2>Steden met een eigen pagina</h2>
+      <p>Voor de grote Nederlandse steden hebben we vaste landingspagina's die direct op die locatie inzoomen, met klimaatcontext, lokale tips per wijk en een uitleg van de typische weerpatronen voor dat gebied:</p>
+      <ul>
+        <li><a href="/zon-amsterdam">Zon in Amsterdam</a> — klimaatcijfers, Vondelpark, IJburg, stadsstrand</li>
+        <li><a href="/zon-rotterdam">Zon in Rotterdam</a> — Maaskust, Kralingse Plas, Hoek van Holland</li>
+        <li><a href="/zon-utrecht">Zon in Utrecht</a> — centrale ligging, Heuvelrug, Loosdrechtse Plassen</li>
+        <li><a href="/zon-den-haag">Zon in Den Haag</a> — kustweer, Scheveningen, Kijkduin</li>
+        <li><a href="/zon-eindhoven">Zon in Eindhoven</a> — Brainport, Genneper Parken, Belgische Kempen</li>
       </ul>
       <p>Of plan op tijd: <a href="/zon-vandaag">zon vandaag</a> · <a href="/zon-weekend">zon dit weekend</a></p>
 
-      <h2>Hoe wordt de zonkans berekend?</h2>
-      <p>De zonkans is een eenvoudige indicator die per locatie en per uur de bewolkingsgraad combineert met dag/nacht-status. Overdag is de zonkans <code>100% − totale bewolking</code>; 's nachts is hij 0% en sorteren we op helderste hemel zodat je nog steeds ziet waar de wolken het dunst zijn. De data komt van Open-Meteo (weersmodel) en OpenWeatherMap (live wolkenlaag). De voorspelling is een indicatie — voor officiële weersinformatie verwijzen we naar het KNMI.</p>
+      <h2>Gidsen en uitleg</h2>
+      <p>Wil je meer weten over hoe zonkans werkt, of hoe je het Nederlandse kustweer leest? In onze uitlegartikelen gaan we dieper in op de meteorologische achtergrond:</p>
+      <ul>
+        <li><a href="/zonkans-uitleg">Wat is zonkans en hoe wordt het berekend?</a> — de formule, de bewolkingslagen en hoe je 60% versus 90% leest.</li>
+        <li><a href="/uv-index">UV-index in Nederland</a> — wanneer is bescherming nodig, hoe verschilt UV door wolken en seizoenen.</li>
+        <li><a href="/zeebries">Zeebries en kustweer</a> — waarom de zon aan zee vaak rond 11:00 doorbreekt.</li>
+        <li><a href="/zonneschijn-per-maand">Zonuren per maand in Nederland</a> — complete maandelijkse breakdown plus regionale verschillen.</li>
+        <li><a href="/zonnigste-plekken-nederland">De zonnigste plekken van Nederland</a> — top-10 regio's met klimaatcijfers en uitjes-tips.</li>
+      </ul>
+
+      <h2>Veelgestelde vragen</h2>
+      <h3>Werkt de kaart ook buiten Nederland?</h3>
+      <p>Ja. Open-Meteo dekt heel Europa en daarbuiten; de plaatsendatabase bevat meer dan 8.000 Europese plaatsen. In Nederland en de directe buurlanden is het modelgrid het dichtst (en dus de voorspelling het meest gedetailleerd); verder weg wordt het netwerk dunner.</p>
+      <h3>Waarom verschilt de zonkans van mijn weer-app?</h3>
+      <p>Andere apps gebruiken vaak een eigen model, of berekenen "zonneschijn" op basis van zonstraling in plaats van bewolking. Onze indicator is bewust simpel — bewolking is wat je écht ziet — en haalbaar op tientallen punten per locatie. Voor het algemene patroon klopt het meestal goed; voor precieze stralingswaarden is een professionele app preciezer.</p>
+      <h3>Hoe vaak wordt de data ververst?</h3>
+      <p>De uurlijkse voorspelling van Open-Meteo wordt elk uur ververst. De live wolkenlaag van OpenWeatherMap heeft een latentie van enkele minuten ten opzichte van de satellietopname.</p>
+      <h3>Slaan jullie mijn locatie op?</h3>
+      <p>Nee. Je geolocatie wordt alleen in je browser gebruikt om de kaart te centreren en de weerdata op te halen. Wij ontvangen geen identificeerbare gegevens; alleen Open-Meteo en OpenWeatherMap ontvangen anonieme coördinaten in de zoekopdracht.</p>
 
       <h2>Privacy en cookies</h2>
-      <p>We respecteren je privacy. Tracking- en advertentiecookies staan standaard uit (Google Consent Mode v2) en worden alleen geactiveerd als je daar via de consent-banner toestemming voor geeft. Lees meer in ons <a href="/privacy">privacybeleid</a> of neem <a href="/contact">contact</a> op met vragen.</p>
+      <p>We respecteren je privacy. Tracking- en advertentiecookies staan standaard uit (Google Consent Mode v2) en worden alleen geactiveerd als je daar via de consent-banner toestemming voor geeft. Lees meer in ons <a href="/privacy">privacybeleid</a>, op de <a href="/about">over-pagina</a> over de werking en achtergrond, in onze <a href="/voorwaarden">algemene voorwaarden en disclaimer</a>, of neem <a href="/contact">contact</a> op met vragen, suggesties of een melding van afwijkende data op de kaart.</p>
     </article>
 
     <script type="module" src="/src/main.jsx"></script>
