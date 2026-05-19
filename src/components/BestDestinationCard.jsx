@@ -28,6 +28,11 @@ export default function BestDestinationCard({ best, fromLocation, isNight, hours
   const sunChance = best.weather.isDay
     ? Math.round(Math.max(0, Math.min(100, 100 - best.weather.cloudCover)))
     : 0;
+  const isHere = best.distance === 0;
+  // Only celebrate "you're in the sun" when the user's spot actually has decent
+  // sun. Without this, an all-cloudy radius makes the user's own location win
+  // by default and the badge wrongly congratulates them at 0% sun.
+  const hereInSun = isHere && sunChance >= 50;
   const cityName = best.cityName || `${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}°`;
 
   const directionsUrl = fromLocation
@@ -54,7 +59,13 @@ export default function BestDestinationCard({ best, fromLocation, isNight, hours
 
   return (
     <section className={`answer-card ${isNight ? 'is-night' : ''}`}>
-      <p className="kicker">{best.distance === 0 ? t('youreInSunshineKicker') : t('bestDestKicker')}</p>
+      <p className="kicker">{
+        hereInSun
+          ? t('youreInSunshineKicker')
+          : isHere
+            ? t('hereButCloudyKicker')
+            : t('bestDestKicker')
+      }</p>
       <div className="answer-title">
         <h1>{cityName}</h1>
         {best.distance > 0 && <span>{best.distance} km</span>}

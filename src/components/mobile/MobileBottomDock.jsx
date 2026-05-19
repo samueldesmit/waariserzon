@@ -39,7 +39,14 @@ function PrimaryDayCard({ best, fromLocation, hoursAhead, onMore }) {
     : 0;
   const cityName = best.cityName || `${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}°`;
   const isHere = best.distance === 0;
-  const kicker = isHere ? t('youreInSunshineKicker') : t('bestDestKicker');
+  // Avoid the "you're in the sun" badge when the user's own location only wins
+  // because everywhere in the radius is overcast (sunChance ~0).
+  const hereInSun = isHere && sunChance >= 50;
+  const kicker = hereInSun
+    ? t('youreInSunshineKicker')
+    : isHere
+      ? t('hereButCloudyKicker')
+      : t('bestDestKicker');
 
   const sunWindowLine = useMemo(() => {
     if (!best.weather.isDay || !best.hourly) return null;
