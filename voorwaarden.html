@@ -21,9 +21,13 @@
     <meta property="og:site_name" content="Waar is er zon?" />
     <meta property="og:locale" content="nl_NL" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      /* Reserve viewport height for the React app before its bundle
+         loads, so the static .landing-prose below #root stays below the
+         fold from the first paint and doesn't shift when React mounts.
+         Single biggest CLS contributor on this site. */
+      #root { min-height: 100vh; min-height: 100svh; }
+    </style>
 
     <script>
       window.dataLayer = window.dataLayer || [];

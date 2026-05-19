@@ -123,7 +123,7 @@ export default function SunshineGraph({ allHours, cityName, hoursAhead = 0 }) {
             const idx = hours.indexOf(h);
             const x = padLeft + (idx / (n - 1)) * chartW;
             return (
-              <text key={i} x={x} y={H + 16} textAnchor="middle" fontSize="11" fill="#888" fontFamily="Nunito, sans-serif">
+              <text key={i} x={x} y={H + 16} textAnchor="middle" fontSize="11" fill="#888" fontFamily="system-ui, -apple-system, sans-serif">
                 {h.label}
               </text>
             );
