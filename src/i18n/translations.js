@@ -78,6 +78,7 @@ export const translations = {
     geoTimeout: 'Location request timed out. Please try again.',
     geoUnavailable: 'Your location could not be determined. Please try again.',
     tryAgain: 'Try again',
+    continueWithoutLocation: 'Continue without location',
 
     // Footer
     footerData: 'Weather data from',
@@ -288,6 +289,7 @@ export const translations = {
     geoTimeout: 'Locatieverzoek verlopen. Probeer het opnieuw.',
     geoUnavailable: 'Je locatie kon niet worden bepaald. Probeer het opnieuw.',
     tryAgain: 'Probeer opnieuw',
+    continueWithoutLocation: 'Verder zonder locatie',
 
     // Footer
     footerData: 'Weerdata van',

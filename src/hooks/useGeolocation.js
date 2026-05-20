@@ -30,6 +30,8 @@ export function useGeolocation() {
     );
   }, []);
 
+  const clearError = useCallback(() => setError(null), []);
+
   const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
@@ -60,5 +62,5 @@ export function useGeolocation() {
     );
   }, []);
 
-  return { location, error, loading, requested, requestLocation };
+  return { location, error, loading, requested, requestLocation, clearError };
 }

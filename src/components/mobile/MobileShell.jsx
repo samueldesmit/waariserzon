@@ -38,6 +38,7 @@ export default function MobileShell({ bag }) {
     pinnedLocation,
     setPinnedLocation,
     requestLocation,
+    handleDismissGeoError,
     activeLocation,
     fromName,
     isNight,
@@ -161,9 +162,16 @@ export default function MobileShell({ bag }) {
                 <p className="m-overlay-hint">{t('errorHint')}</p>
               </>
             )}
-            <button type="button" className="m-btn m-btn--sun" onClick={requestLocation}>
-              {t('tryAgain')}
-            </button>
+            <div className="m-overlay-actions">
+              <button type="button" className="m-btn m-btn--sun" onClick={requestLocation}>
+                {t('tryAgain')}
+              </button>
+              {geoError === 'PERMISSION_DENIED' && (
+                <button type="button" className="m-btn m-btn--night" onClick={handleDismissGeoError}>
+                  {t('continueWithoutLocation')}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

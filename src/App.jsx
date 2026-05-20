@@ -150,7 +150,17 @@ function App() {
     }, 60);
     return () => clearInterval(id);
   }, [playing, presetBase]);
-  const { location, error: geoError, loading: geoLoading, requested, requestLocation } = useGeolocation();
+  const { location, error: geoError, loading: geoLoading, requested, requestLocation, clearError: clearGeoError } = useGeolocation();
+
+  // Fallback when the user has blocked geolocation in the browser. Drops a
+  // default pin (Utrecht — geographic center of NL) so the map, search, and
+  // sunshine ranking remain usable instead of the error overlay trapping them.
+  const handleDismissGeoError = () => {
+    clearGeoError();
+    if (!pinnedLocation) {
+      setPinnedLocation({ lat: 52.0907, lon: 5.1214, name: 'Utrecht', cityName: 'Utrecht' });
+    }
+  };
   const activeLocation = pinnedLocation ?? location;
 
   // Reverse-geocoded name for the active coords. Only used when the active
@@ -408,6 +418,7 @@ function App() {
       pinnedLocation,
       setPinnedLocation,
       requestLocation,
+      handleDismissGeoError,
       activeLocation,
       fromName,
       isNight,
@@ -571,7 +582,14 @@ function App() {
               <p className="error-hint">{t('errorHint')}</p>
             </>
           )}
-          <button className="locate-btn" onClick={requestLocation}>{t('tryAgain')}</button>
+          <div className="error-actions">
+            <button className="locate-btn" onClick={requestLocation}>{t('tryAgain')}</button>
+            {error === 'PERMISSION_DENIED' && (
+              <button className="locate-btn locate-btn--secondary" onClick={handleDismissGeoError}>
+                {t('continueWithoutLocation')}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

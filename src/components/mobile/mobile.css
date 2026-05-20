@@ -1009,6 +1009,13 @@
   color: rgba(31, 32, 24, 0.7);
 }
 
+.m-overlay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
 .m-loading-spinner {
   width: 44px;
   height: 44px;

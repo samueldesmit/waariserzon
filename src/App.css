@@ -298,6 +298,18 @@
   max-width: 520px;
 }
 
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.locate-btn--secondary {
+  background: var(--cream);
+  color: var(--ink);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
