@@ -18,7 +18,11 @@ import './App.css';
 const TIME_PRESETS = [
   { value: 0, key: 'now' },
   { value: 24, label: '+1d' },
+  { value: 48, label: '+2d' },
   { value: 72, label: '+3d' },
+  { value: 96, label: '+4d' },
+  { value: 120, label: '+5d' },
+  { value: 144, label: '+6d' },
   { value: 168, label: '+7d' },
   { value: 336, label: '+14d' },
 ];
@@ -104,7 +108,7 @@ function App() {
   const [radiusKm, setRadiusKm] = useState(30);
   const [hoursAhead, setHoursAhead] = useState(0);
   // presetBase = the start of the current 24h scrub window (Now = 0, +1d = 24,
-  // +7d = 168, etc.). The slider scrubs hoursAhead from presetBase to
+  // +2d = 48, etc.). The slider scrubs hoursAhead from presetBase to
   // presetBase + 24.
   const [presetBase, setPresetBase] = useState(0);
   const [pinnedLocation, setPinnedLocation] = useState(null);
@@ -192,7 +196,7 @@ function App() {
 
   // Only fetch as many days as the current preset window actually needs.
   // Default sessions stay near "Now" (4 days covers Now + slider + +1d/+3d);
-  // we bump up when the user jumps to +7d or +14d.
+  // we bump up when the user jumps further out in the week.
   const forecastDays = Math.min(
     16,
     Math.max(4, Math.ceil((presetBase + SLIDER_MAX + 4) / 24)),

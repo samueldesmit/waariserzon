@@ -244,7 +244,43 @@
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.m-preset-row,
+.m-preset-select-wrap {
+  position: relative;
+  display: block;
+}
+
+.m-preset-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 36px 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--moss);
+  color: var(--cream);
+  font: inherit;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+}
+
+.m-preset-select-chevron {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  pointer-events: none;
+  color: var(--cream);
+}
+
+.m-preset-select-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
 .m-radius-row {
   display: grid;
   grid-auto-flow: column;

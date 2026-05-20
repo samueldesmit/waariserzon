@@ -211,8 +211,8 @@ export function useNearbyWeather(
       const lons = generated.map((p) => p.lon.toFixed(4)).join(',');
       // forecastDays scales with the user's selected preset window — most
       // sessions only need 4 days; we bump it when the user explicitly
-      // jumps to +7d or +14d. daily sunrise/sunset gives minute-precision
-      // day/night.
+      // jumps further out in the week. daily sunrise/sunset gives
+      // minute-precision day/night.
       const params =
         `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=${days}`;
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;

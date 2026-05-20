@@ -16,7 +16,11 @@ import {
 const TIME_PRESETS = [
   { value: 0, key: 'now' },
   { value: 24, label: '+1d' },
+  { value: 48, label: '+2d' },
   { value: 72, label: '+3d' },
+  { value: 96, label: '+4d' },
+  { value: 120, label: '+5d' },
+  { value: 144, label: '+6d' },
   { value: 168, label: '+7d' },
   { value: 336, label: '+14d' },
 ];
@@ -212,7 +216,19 @@ export default function MobileBottomDock({
   onSkipToSunrise,
   onMore,
 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // Weekday suffix lets a collapsed dropdown still tell the user which actual
+  // day "+3d" lands on (e.g. "+3d • zo").
+  const presetOptions = useMemo(() => {
+    const locale = lang === 'nl' ? 'nl-NL' : 'en-GB';
+    const now = new Date();
+    return TIME_PRESETS.map((p) => {
+      if (p.key === 'now') return { ...p, optionLabel: t('now') };
+      const target = new Date(now.getTime() + p.value * 3600 * 1000);
+      const weekday = target.toLocaleDateString(locale, { weekday: 'short' });
+      return { ...p, optionLabel: `${p.label} • ${weekday}` };
+    });
+  }, [lang, t]);
   if (!hasLocation) return null;
 
   return (
@@ -245,17 +261,22 @@ export default function MobileBottomDock({
             aria-valuetext={timeLabel}
           />
         </div>
-        <div className="m-preset-row" role="group" aria-label={t('momentLabel')}>
-          {TIME_PRESETS.map((p) => (
-            <button
-              key={p.value}
-              type="button"
-              className={`m-chip m-chip--preset ${presetBase === p.value ? 'is-active' : ''}`}
-              onClick={() => onPresetClick(p)}
-            >
-              {p.key ? t(p.key) : p.label}
-            </button>
-          ))}
+        <div className="m-preset-select-wrap">
+          <select
+            className="m-preset-select"
+            value={presetBase}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              const preset = TIME_PRESETS.find((p) => p.value === v);
+              if (preset) onPresetClick(preset);
+            }}
+            aria-label={t('momentLabel')}
+          >
+            {presetOptions.map((p) => (
+              <option key={p.value} value={p.value}>{p.optionLabel}</option>
+            ))}
+          </select>
+          <span className="m-preset-select-chevron" aria-hidden="true"><ChevronDownIcon /></span>
         </div>
 
         {/* radius */}
