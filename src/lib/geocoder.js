@@ -18,36 +18,29 @@ function parseWktPoint(wkt) {
   return { lon: Number(match[1]), lat: Number(match[2]) };
 }
 
-// PDOK's relevance score over-rewards single-token matches. For "Ein", that
-// pushes tiny Frisian streets ("Lang' Ein") above the city Eindhoven. We
-// re-rank by type so cities surface first, since that's what people are
-// usually after in an autocomplete.
-const TYPE_RANK = { woonplaats: 0, postcode: 1, weg: 2, adres: 3 };
-
 async function suggestPdok(query, { signal, limit = 6 } = {}) {
   // /suggest uses Solr edge-n-gram indexing, so "Ein" already matches
-  // "Eindhoven". The /free endpoint we used previously only does whole-word
-  // matching and returns nothing until the user types "Eindhove". /suggest
-  // doesn't include coordinates — they come from /lookup when the user picks.
+  // "Eindhoven" — the /free endpoint we used previously only does whole-word
+  // matching and returned nothing until "Eindhove". /suggest doesn't include
+  // coordinates; those come from /lookup when the user picks.
+  //
+  // bq=type:woonplaats^10 boosts city matches so the city Eindhoven beats
+  // the dozens of tiny streets called "Eind" that otherwise dominate the
+  // top results by raw token-match score. The boost only fires when there
+  // *is* a woonplaats match, so specific street/postcode queries are
+  // unaffected.
   const fq = 'type:(adres OR weg OR woonplaats OR postcode)';
-  // Fetch extra rows so the type re-rank has material to draw from before
-  // truncating to `limit`.
   const params = new URLSearchParams({
     q: query,
-    rows: String(limit * 2),
+    rows: String(limit),
     fq,
+    bq: 'type:woonplaats^10',
   });
   const res = await fetch(`${PDOK_SUGGEST_URL}?${params.toString()}`, { signal });
   if (!res.ok) return [];
   const data = await res.json();
   const docs = data?.response?.docs ?? [];
-  const ranked = [...docs].sort((a, b) => {
-    const ra = TYPE_RANK[a.type] ?? 99;
-    const rb = TYPE_RANK[b.type] ?? 99;
-    if (ra !== rb) return ra - rb;
-    return (b.score ?? 0) - (a.score ?? 0);
-  });
-  return ranked.slice(0, limit).map((doc) => ({
+  return docs.map((doc) => ({
     id: `pdok:${doc.id}`,
     pdokId: doc.id,
     name: doc.weergavenaam,
