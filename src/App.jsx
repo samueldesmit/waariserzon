@@ -10,7 +10,7 @@ import SunRanking from './components/SunRanking';
 import ForecastTimeline from './components/ForecastTimeline';
 import MobileShell from './components/mobile/MobileShell';
 import { useLanguage } from './i18n/LanguageContext';
-import { searchPlaces, reverseGeocode } from './lib/geocoder';
+import { searchPlaces, reverseGeocode, resolveSuggestion } from './lib/geocoder';
 import { detectDevice } from './lib/device';
 import './App.css';
 
@@ -348,16 +348,26 @@ function App() {
     [hoursAhead, lang, t],
   );
 
-  const pickSuggestion = (suggestion) => {
+  const pickSuggestion = async (suggestion) => {
     if (!suggestion) return;
     searchTypingRef.current = false;
+    // PDOK /suggest results carry no coords; resolve via /lookup before
+    // pinning. Mapbox results already include coords and pass through.
+    let resolved = suggestion;
+    if (resolved.lat == null || resolved.lon == null) {
+      try {
+        resolved = await resolveSuggestion(suggestion);
+      } catch {}
+    }
+    if (resolved?.lat == null || resolved?.lon == null) return;
+    const displayName = resolved.cityName || resolved.name;
     setPinnedLocation({
-      lat: suggestion.lat,
-      lon: suggestion.lon,
-      name: suggestion.cityName || suggestion.name,
-      cityName: suggestion.cityName || suggestion.name,
+      lat: resolved.lat,
+      lon: resolved.lon,
+      name: displayName,
+      cityName: displayName,
     });
-    setSearchValue(suggestion.cityName || suggestion.name);
+    setSearchValue(displayName);
     setSuggestions([]);
     setSearchOpen(false);
     setSearchActive(-1);

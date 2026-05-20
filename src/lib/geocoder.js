@@ -4,7 +4,8 @@
 // nothing and a Mapbox token is configured, we fall back to Mapbox geocoding
 // for international queries.
 
-const PDOK_URL = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/free';
+const PDOK_SUGGEST_URL = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest';
+const PDOK_LOOKUP_URL = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup';
 const PDOK_REVERSE_URL = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/reverse';
 const MAPBOX_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -17,38 +18,89 @@ function parseWktPoint(wkt) {
   return { lon: Number(match[1]), lat: Number(match[2]) };
 }
 
-async function searchPdok(query, { signal, limit = 6 } = {}) {
-  // Restrict to the types that map to a useful pin. We exclude provinces,
-  // municipalities (gemeente) and country-level so users get streets/towns
-  // rather than huge polygons.
+// PDOK's relevance score over-rewards single-token matches. For "Ein", that
+// pushes tiny Frisian streets ("Lang' Ein") above the city Eindhoven. We
+// re-rank by type so cities surface first, since that's what people are
+// usually after in an autocomplete.
+const TYPE_RANK = { woonplaats: 0, postcode: 1, weg: 2, adres: 3 };
+
+async function suggestPdok(query, { signal, limit = 6 } = {}) {
+  // /suggest uses Solr edge-n-gram indexing, so "Ein" already matches
+  // "Eindhoven". The /free endpoint we used previously only does whole-word
+  // matching and returns nothing until the user types "Eindhove". /suggest
+  // doesn't include coordinates — they come from /lookup when the user picks.
   const fq = 'type:(adres OR weg OR woonplaats OR postcode)';
+  // Fetch extra rows so the type re-rank has material to draw from before
+  // truncating to `limit`.
   const params = new URLSearchParams({
     q: query,
-    rows: String(limit),
-    fl: 'id,weergavenaam,type,centroide_ll,straatnaam,woonplaatsnaam,huisnummer,postcode',
+    rows: String(limit * 2),
     fq,
   });
-  const res = await fetch(`${PDOK_URL}?${params.toString()}`, { signal });
+  const res = await fetch(`${PDOK_SUGGEST_URL}?${params.toString()}`, { signal });
   if (!res.ok) return [];
   const data = await res.json();
   const docs = data?.response?.docs ?? [];
-  return docs
-    .map((doc) => {
-      const coords = parseWktPoint(doc.centroide_ll);
-      if (!coords) return null;
-      const cityName = doc.woonplaatsnaam || doc.straatnaam || doc.weergavenaam;
-      return {
-        id: `pdok:${doc.id}`,
-        name: doc.weergavenaam,
-        label: doc.weergavenaam,
-        cityName,
-        type: doc.type,
-        lat: coords.lat,
-        lon: coords.lon,
-        source: 'pdok',
-      };
-    })
-    .filter(Boolean);
+  const ranked = [...docs].sort((a, b) => {
+    const ra = TYPE_RANK[a.type] ?? 99;
+    const rb = TYPE_RANK[b.type] ?? 99;
+    if (ra !== rb) return ra - rb;
+    return (b.score ?? 0) - (a.score ?? 0);
+  });
+  return ranked.slice(0, limit).map((doc) => ({
+    id: `pdok:${doc.id}`,
+    pdokId: doc.id,
+    name: doc.weergavenaam,
+    label: doc.weergavenaam,
+    cityName: null, // resolved on pick via lookupPdok
+    type: doc.type,
+    lat: null,
+    lon: null,
+    source: 'pdok',
+  }));
+}
+
+async function lookupPdok(pdokId, { signal } = {}) {
+  const params = new URLSearchParams({
+    id: pdokId,
+    fl: 'id,weergavenaam,type,centroide_ll,woonplaatsnaam,straatnaam',
+  });
+  const res = await fetch(`${PDOK_LOOKUP_URL}?${params.toString()}`, { signal });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const doc = data?.response?.docs?.[0];
+  if (!doc) return null;
+  const coords = parseWktPoint(doc.centroide_ll);
+  if (!coords) return null;
+  return {
+    lat: coords.lat,
+    lon: coords.lon,
+    cityName: doc.woonplaatsnaam || doc.straatnaam || doc.weergavenaam,
+    name: doc.weergavenaam,
+  };
+}
+
+// Used by the search picker to fill in coordinates for /suggest results,
+// which only return id + display name. Mapbox suggestions already carry
+// coordinates and pass through unchanged.
+export async function resolveSuggestion(suggestion, { signal } = {}) {
+  if (!suggestion) return null;
+  if (suggestion.lat != null && suggestion.lon != null) return suggestion;
+  if (suggestion.source !== 'pdok' || !suggestion.pdokId) return suggestion;
+  try {
+    const looked = await lookupPdok(suggestion.pdokId, { signal });
+    if (!looked) return suggestion;
+    return {
+      ...suggestion,
+      lat: looked.lat,
+      lon: looked.lon,
+      cityName: looked.cityName ?? suggestion.cityName,
+      name: looked.name ?? suggestion.name,
+    };
+  } catch (err) {
+    if (err?.name === 'AbortError') throw err;
+    return suggestion;
+  }
 }
 
 async function searchMapbox(query, { signal, lang = 'nl', limit = 5 } = {}) {
@@ -93,7 +145,7 @@ export async function searchPlaces(query, { signal, lang = 'nl' } = {}) {
   const q = query.trim();
   if (q.length < 2) return [];
   try {
-    const pdok = await searchPdok(q, { signal });
+    const pdok = await suggestPdok(q, { signal });
     if (pdok.length > 0) return pdok;
     return await searchMapbox(q, { signal, lang });
   } catch (err) {
