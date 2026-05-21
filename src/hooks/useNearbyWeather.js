@@ -16,9 +16,17 @@ function pointCountForRadius(radiusKm) {
 
 // Per-browser snapshot cache. Keyed by (lat, lon, radius, forecastDays, lang)
 // rounded to 3 decimal places so tiny coordinate jitter still hits the cache.
+// `wnw2` prefix invalidates older entries that lack the `current` block.
 const CACHE_TTL_MS = 10 * 60 * 1000;
 function cacheKey(loc, radiusKm, forecastDays, lang) {
-  return `wnw:${loc.lat.toFixed(3)},${loc.lon.toFixed(3)}-${radiusKm}-${forecastDays}-${lang}`;
+  return `wnw2:${loc.lat.toFixed(3)},${loc.lon.toFixed(3)}-${radiusKm}-${forecastDays}-${lang}`;
+}
+
+// KNMI HARMONIE is tuned to the Netherlands and tracks short-term cloud
+// clearings better than Open-Meteo's best_match blend. Coverage extends
+// into BE/DE/North Sea, so a 60 km radius from any NL center stays inside.
+function isInNetherlands(lat, lon) {
+  return lat >= 50.5 && lat <= 53.8 && lon >= 3.0 && lon <= 7.5;
 }
 function readCache(key) {
   try {
@@ -212,10 +220,17 @@ export function useNearbyWeather(
       // forecastDays scales with the user's selected preset window — most
       // sessions only need 4 days; we bump it when the user explicitly
       // jumps further out in the week. daily sunrise/sunset gives
-      // minute-precision day/night.
+      // minute-precision day/night. `current=` returns the latest model
+      // run / nowcast for hoursAhead===0 so we don't read a stale hourly
+      // grid when the sky has already cleared.
       const params =
-        `hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&forecast_days=${days}`;
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}&timezone=auto`;
+        `current=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day` +
+        `&hourly=weather_code,temperature_2m,cloud_cover,wind_speed_10m,is_day` +
+        `&daily=sunrise,sunset&forecast_days=${days}`;
+      const modelsParam = isInNetherlands(location.lat, location.lon)
+        ? '&models=knmi_seamless'
+        : '';
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&${params}${modelsParam}&timezone=auto`;
 
       fetchOpenMeteo(url, { signal: controller.signal })
         .then((data) => {
@@ -241,7 +256,18 @@ export function useNearbyWeather(
               ? { time: r.daily.time, sunrise: r.daily.sunrise, sunset: r.daily.sunset }
               : null,
           );
-          const next = { points, hourly, daily };
+          const current = results.map((r) =>
+            r?.current
+              ? {
+                  weatherCode: r.current.weather_code,
+                  temperature: r.current.temperature_2m,
+                  cloudCover: r.current.cloud_cover,
+                  windSpeed: r.current.wind_speed_10m,
+                  isDay: r.current.is_day,
+                }
+              : null,
+          );
+          const next = { points, hourly, daily, current };
           setSnapshot(next);
           writeCache(key, next);
           setInitialLoading(false);
@@ -277,8 +303,31 @@ export function useNearbyWeather(
     return snapshot.points.map((point, i) => {
       const h = snapshot.hourly[i];
       const d = snapshot.daily?.[i];
+      const c = snapshot.current?.[i];
       const cityName = point.short === 'Here' && hereName ? hereName : point.cityName;
       if (!h) return { ...point, cityName, weather: null };
+      // At hoursAhead===0, the `current` block is the freshest reading
+      // available (latest model run, refreshed every ~hour). The hourly grid
+      // can lag by up to an hour, which is what caused "100% cloud" on
+      // already-clear skies.
+      if (hoursAhead === 0 && c) {
+        const minuteDay = isDayAtMinute(targetDate, d);
+        const isDay = minuteDay !== null ? minuteDay : c.isDay === 1;
+        const weather = interpretWeatherCode(c.weatherCode, isDay, strings);
+        return {
+          ...point,
+          cityName,
+          hourly: { time: h.time, cloudCover: h.cloudCover, isDay: h.isDay },
+          weather: {
+            ...weather,
+            temperature: c.temperature,
+            cloudCover: c.cloudCover,
+            windSpeed: c.windSpeed,
+            weatherCode: c.weatherCode,
+            isDay,
+          },
+        };
+      }
       const { lower, upper, frac } = findHourPair(h.time, targetDate);
       // Discrete attributes (day/night, weather code) snap to nearest hour so
       // the marker emoji doesn't flicker while interpolating.
