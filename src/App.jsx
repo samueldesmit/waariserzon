@@ -805,6 +805,11 @@ function App() {
           {' · '}
           <a href="/voorwaarden">{t('termsLink')}</a>
         </p>
+        <p className="footer-badge">
+          <a href="https://verifieddr.com/website/waariserzon-nl" target="_blank" rel="noopener noreferrer">
+            <img src="https://verifieddr.com/badge/waariserzon-nl-dark.svg?metric=truedr" alt="Verified DR - TrueDR (Real Authority Score) for waariserzon.nl" width="220" height="68" />
+          </a>
+        </p>
       </footer>
     </main>
   );
